@@ -1,0 +1,50 @@
+name: "❓ Ask a Question"
+description: Ask a question about MCPStack.
+title: "❓ [QUESTION] - <title>"
+labels:
+  - "question"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        <p align="center">
+          <img src="https://github.com/MCP-Pipeline/MCPStack/raw/main/assets/COVER_dark.png" alt="COVER">
+          <br>
+          <em>MCPStack project</em>
+        </p>
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: "Before Submitting"
+      description: Please confirm the following to help us answer your question efficiently.
+      options:
+        - label: I have checked the documentation and existing issues.
+          required: true
+  - type: textarea
+    id: question
+    attributes:
+      label: "Question"
+      description: Please provide a clear and concise question.
+      placeholder: "Hint: ‘brevity is the soul of wit’, Hamlet — by William Shakespeare"
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: "Additional Context"
+      description: Provide any additional context or details that might help answer your question.
+      placeholder: "Hint: Optional, e.g., code snippets, error messages, etc."
+    validations:
+      required: false
+  - type: input
+    id: project-area
+    attributes:
+      label: "Project Area"
+      description: Specify the area of MCPStack your question relates to.
+      placeholder: "Hint: Optional, e.g., CLI, tool CLI, presets, MCP server, etc."
+    validations:
+      required: false
+  - type: markdown
+    attributes:
+      value: |
+        **Security Note:** Please do not share sensitive information such as authentication tokens, personal data, or confidential project details in this question.

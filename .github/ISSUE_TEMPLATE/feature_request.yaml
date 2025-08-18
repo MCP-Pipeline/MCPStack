@@ -1,0 +1,79 @@
+name: "💡 Feature Request"
+description: Suggest a new feature or enhancement for MCPStack.
+title: "💡 [FEAT] - <title>"
+labels:
+  - "feature"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        <p align="center">
+          <img src="https://github.com/MCP-Pipeline/MCPStack/raw/main/assets/COVER_dark.png" alt="COVER">
+          <br>
+          <em>MCPStack project</em>
+        </p>
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: "Before Submitting"
+      description: Please confirm the following to help us process your request efficiently.
+      options:
+        - label: I have checked if this feature already exists or has been requested.
+          required: true
+  - type: textarea
+    id: feature-description
+    attributes:
+      label: "Feature Description"
+      description: Please provide a clear and concise description of the feature you are requesting.
+      placeholder: "Hint: ‘brevity is the soul of wit’, Hamlet — by William Shakespeare"
+    validations:
+      required: true
+  - type: textarea
+    id: proposed-solution
+    attributes:
+      label: "Proposed Solution"
+      description: Describe how you envision this feature working.
+      placeholder: "Explain how the feature should function."
+    validations:
+      required: true
+  - type: textarea
+    id: examples
+    attributes:
+      label: "Examples or References"
+      description: Provide any examples, links, or references that might help illustrate your request.
+      placeholder: "Hint: Optional, e.g., screenshots, links to similar features in other projects, etc."
+    validations:
+      required: false
+  - type: dropdown
+    id: contribution
+    attributes:
+      label: "Willing to Contribute?"
+      description: Would you be willing to help implement this feature?
+      options:
+        - "Yes"
+        - "No"
+  - type: dropdown
+    id: roadmap-alignment
+    attributes:
+      label: "Roadmap Alignment"
+      description: Which part of the MCPStack roadmap does this feature align with?
+      options:
+        - "More MCP Tools"
+        - "Richer MCP Tooling Functionalities"
+        - "Technical Enhancements"
+        - "Ecosystem and Community Contributions"
+        - "More Templates and Presets"
+        - "Documentation and Support"
+        - "Other"
+  - type: input
+    id: other-roadmap
+    attributes:
+      label: "Other Roadmap Alignment"
+      description: "Only fill this if you selected 'Other' in the Roadmap Alignment dropdown."
+      placeholder: "Describe how this feature aligns with MCPStack's goals."
+    validations:
+      required: false
+  - type: markdown
+    attributes:
+      value: |
+        **Security Note:** Please do not share sensitive information such as authentication tokens, personal data, or confidential project details in this request.
