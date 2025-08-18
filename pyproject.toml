@@ -1,0 +1,139 @@
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+[project]
+name = "mcpstack"
+dynamic = ["version"]
+description = "MCPStack: a generic, composable stack for building and running MCP tool pipelines."
+requires-python = ">=3.10"
+authors = [
+    { name = "Provost Simon", email = "sgp29@kent.ac.uk" },
+]
+readme = "README.md"
+license = "MIT"
+keywords = ["mcp", "model-context-protocol", "pipelines", "llm", "tooling", "cli", "scikit-learn-pipelines"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Software Development :: Build Tools",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: OS Independent",
+]
+
+dependencies = [
+    "typer>=0.9.0",
+    "rich>=13.0.0",
+    "fastmcp>=0.1.0",
+    "beartype>=0.21.0",
+    "thefuzz>=0.22.1",
+    "rich-pyfiglet>=0.1.4",
+    "click==8.1.8",
+    "pytest-cov>=6.2.1",
+]
+
+[project.optional-dependencies]
+# Optional extras for external tools that may be plugged into MCPStack.
+# Keep the core lightweight; tool-specific deps live here or in their own projects.
+devtools = [
+    "appdirs>=1.4.0",
+    "pyaml>=25.7.0",
+]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.4.0",
+    "pre-commit>=3.0.0",
+    "pytest>=7.4.0",
+    "pytest-asyncio>=0.23.0",
+    "pytest-mock>=3.10.0",
+    "aiohttp>=3.8.0",
+    "pytest-cov>=6.2.1",
+]
+mcp_tools = [
+    # Add any MCPStack MCP supported tools of interest here. `uv sync --group mcp_tools`
+]
+
+[project.scripts]
+mcpstack = "MCPStack.cli:main_cli"
+mcpstack-mcp-server = "MCPStack.core.server:main"
+
+[project.urls]
+Homepage = "https://github.com/MCP-Pipeline/"
+Repository = "https://github.com/MCP-Pipeline/MCPStack"
+Documentation = "https://github.com/MCP-Pipeline/MCPStack"
+Issues = "https://github.com/MCP-Pipeline/MCPStack/issues"
+Changelog = "https://github.com/MCP-Pipeline/MCPStack/releases"
+
+[tool.pdm.version]
+source = "file"
+path = "src/MCPStack/__init__.py"
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+src = ["src"]
+
+[tool.ruff.lint]
+select = [
+    "E",
+    "W",
+    "F",
+    "I",
+    "UP",
+    "RUF",
+    "B",
+    "C4",
+]
+ignore = [
+    "E501",
+]
+
+[tool.ruff.format]
+
+[tool.ruff.lint.isort]
+known-first-party = ["MCPStack"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+filterwarnings = [
+    "ignore::DeprecationWarning:jupyter_client.*",
+]
+
+[tool.coverage.paths]
+source = [
+    "src/MCPStack",
+]
+
+[tool.coverage.run]
+branch = true
+omit = [
+    "src/MCPStack/**/base.py",
+    "src/MCPStack/**/__init__.py",
+    "tests/**",
+]
+
+[tool.coverage.report]
+exclude_also = [
+    "def __repr__",
+    "if self\\.debug",
+
+    "raise AssertionError",
+    "raise NotImplementedError",
+
+    "if 0:",
+    "if __name__ == .__main__.:",
+
+    "@(abc\\.)?abstractmethod",
+]
+ignore_errors = true
+
+[tool.coverage.html]
+directory = "coverage_html_report"

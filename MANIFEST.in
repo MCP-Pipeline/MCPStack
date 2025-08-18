@@ -1,0 +1,12 @@
+include README.md
+include LICENSE
+include pyproject.toml
+recursive-include src *.py
+global-exclude *.pyc
+global-exclude __pycache__
+global-exclude .DS_Store
+prune tests
+prune webapp
+prune benchmarks
+prune build
+prune dist
