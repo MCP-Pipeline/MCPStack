@@ -4,7 +4,7 @@
     MCPStack
     <br>
   </h1>
-  <h4 align="center">Stack & Orchestrate MCP Tools — The Scikit-Learn Way, For LLMs</h4>
+  <h4 align="center">Stack & Orchestrate MCP Tools — The Scikit-Learn-Pipeline Way, For LLMs</h4>
 </div>
 
 <div align="center">
@@ -30,12 +30,12 @@
 
 ## <a id="about-the-project"></a>💡 About The Project
 
-`MCPStack` is a **`Scikit-Learn-Like` Pipeline orchestrator** for Model Context Protocols (MCPs).  
-It allows you to **stack multiple MCP tools together** into a pipeline of interest and expose them directly 
+`MCPStack` is a **`Scikit-Learn-Like` Pipeline orchestrator** for Model Context Protocols (MCPs).
+It allows you to **stack multiple MCP tools together** into a pipeline of interest and expose them directly
 into your favourite LLM environment, such as **Claude Desktop**.
 
 Think of it as **`scikit-learn` pipelines, but for Large Language Models**:
-* In `scikit-learn`, you chain `preprocessors`, `transformers`, and `estimators`.  
+* In `scikit-learn`, you chain `preprocessors`, `transformers`, and `estimators`.
 * In `MCPStack`, you chain MCP tools of interest. If some tools are not of interest, you simply do not include them in the pipeline.
 
 The LLM cannot use a tool that is not included in the pipeline.  This makes orchestration both **powerful** and **secure**.
@@ -43,16 +43,16 @@ This permits sophisticated compositions in which the LLM can only access the too
 
 **Wait, what is a Model Context Protocol (MCP) — In layman's terms ?**
 
-The Model Context Protocol (MCP) standardises interactions with machine learning (Large Language) models, 
-enabling tools and libraries to communicate successfully with a uniform workflow. 
+The Model Context Protocol (MCP) standardises interactions with machine learning (Large Language) models,
+enabling tools and libraries to communicate successfully with a uniform workflow.
 
 ---
 
 ## Installation
 
 > [!NOTE]
-> MCPStack is the orchestrator — it comes with core utilities and validated tools.  
-> All validated tools are listed under `mcp_tools` in the `pyproject.toml` and are auto-registered via  
+> MCPStack is the orchestrator — it comes with core utilities and validated tools.
+> All validated tools are listed under `mcp_tools` in the `pyproject.toml` and are auto-registered via
 > `[project.entry-points."mcpstack.tools"]`.
 
 ### Clone the repository
@@ -92,7 +92,7 @@ pre-commit install
 
 ## 🖥️ CLI Workflow
 
-You can manage and run your MCP pipelines directly from the CLI with the `mcpstack` command.  
+You can manage and run your MCP pipelines directly from the CLI with the `mcpstack` command.
 Every command is run with `uv run mcpstack` (or just `mcpstack` if installed globally).
 
 <img src="assets/readme/help.png" width="61.8%" align="left" style="border-radius: 10px;"/>
@@ -226,7 +226,7 @@ More chaining methods are available, such as `with_config(...)` to configure the
 
 You can also create your own MCP tool with the [`mcpstack-tool-builder` CLI](https://github.com/MCP-Pipeline/MCPStack-Tool-Builder), which will generate a skeleton for you to fill in.
 
-That means, creating the `actions` your MCP tool will allow LLMs to perform, and a `CLI` to 
+That means, creating the `actions` your MCP tool will allow LLMs to perform, and a `CLI` to
 initialise it, configure it, and run it. More in the documentation.
 
 <br clear="left">

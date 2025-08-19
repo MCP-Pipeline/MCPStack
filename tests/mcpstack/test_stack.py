@@ -10,10 +10,10 @@ from MCPStack.core.mcp_config_generator.registry import ALL_MCP_CONFIG_GENERATOR
 from MCPStack.core.tool.base import BaseTool
 from MCPStack.core.utils.exceptions import (
     MCPStackBuildError,
+    MCPStackConfigError,
     MCPStackInitializationError,
     MCPStackPresetError,
     MCPStackValidationError,
-    MCPStackConfigError,
 )
 from MCPStack.stack import MCPStackCore
 from MCPStack.tools.registry import ALL_TOOLS
@@ -28,13 +28,17 @@ def mock_config() -> StackConfig:
 def mock_tool() -> BaseTool:
     class MockTool(BaseTool):
         TYPE = "mocktool"
+
         @classmethod
         def from_dict(cls, params):
             return cls()
+
         def actions(self):
             pass
+
         def to_dict(self):
             pass
+
         def __init__(self):
             super().__init__()
             self.required_env_vars = {}
@@ -42,6 +46,7 @@ def mock_tool() -> BaseTool:
             self.to_dict = MagicMock(return_value={"param": "value"})
             self.initialize = MagicMock()
             self.post_load = MagicMock()
+
     return MockTool()
 
 
@@ -92,7 +97,10 @@ class TestMCPStackCore:
         mock_preset_stack.config = MagicMock(spec=StackConfig)
         mock_preset_stack.mcp = MagicMock(spec=FastMCP)
         mock_preset_class.create.return_value = mock_preset_stack
-        with patch.dict("MCPStack.core.preset.registry.ALL_PRESETS", {"test_preset": mock_preset_class}):
+        with patch.dict(
+            "MCPStack.core.preset.registry.ALL_PRESETS",
+            {"test_preset": mock_preset_class},
+        ):
             stack = MCPStackCore()
             new_stack = stack.with_preset("test_preset")
             assert new_stack != stack
@@ -231,4 +239,6 @@ class TestMCPStackCore:
             stack = MCPStackCore()
             with pytest.raises(MCPStackValidationError) as exc_info:
                 stack._generate_config(type="fastmc")
-            assert "Unknown config type: fastmc. Did you mean 'fastmcp'?" in str(exc_info.value)
+            assert "Unknown config type: fastmc. Did you mean 'fastmcp'?" in str(
+                exc_info.value
+            )

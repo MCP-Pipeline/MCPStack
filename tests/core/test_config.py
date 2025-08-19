@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 
@@ -68,11 +68,17 @@ class TestStackConfig:
 
     def test_validate_for_tools_success(self):
         """Test validate_for_tools method success."""
+
         class Tool(BaseTool):
-            def actions(self): return []
-            def to_dict(self): return {}
+            def actions(self):
+                return []
+
+            def to_dict(self):
+                return {}
+
             @classmethod
-            def from_dict(cls, params): return cls()
+            def from_dict(cls, params):
+                return cls()
 
         mock_tool = Tool()
         mock_tool.__class__.__name__ = "TestTool"
@@ -82,11 +88,17 @@ class TestStackConfig:
 
     def test_validate_for_tools_error(self):
         """Test validate_for_tools raises on error."""
+
         class Tool(BaseTool):
-            def actions(self): return []
-            def to_dict(self): return {}
+            def actions(self):
+                return []
+
+            def to_dict(self):
+                return {}
+
             @classmethod
-            def from_dict(cls, params): return cls()
+            def from_dict(cls, params):
+                return cls()
 
         mock_tool = Tool()
         mock_tool.__class__.__name__ = "TestTool"
