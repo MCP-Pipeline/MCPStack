@@ -2,10 +2,11 @@ import importlib
 import inspect
 import logging
 import os
-from pathlib import Path
 from importlib.metadata import entry_points
+from pathlib import Path
 
 from beartype import beartype
+
 from MCPStack.core.tool.base import BaseTool
 
 logger = logging.getLogger(__name__)
@@ -60,6 +61,7 @@ def _discover_tools() -> None:
 
 
 def _discover_entrypoint_tools() -> None:
+    """_discover_entrypoint_tools function."""
     try:
         eps = entry_points().select(group="mcpstack.tools")
     except Exception:

@@ -1,11 +1,20 @@
-from MCPStack.core.preset.base import Preset
 from MCPStack.core.config import StackConfig
-from MCPStack.tools.hello_world import HelloWorld
+from MCPStack.core.preset.base import Preset
 from MCPStack.stack import MCPStackCore
+from MCPStack.tools.hello_world import HelloWorld
+
 
 class ExamplePreset(Preset):
+    """ExamplePreset class.
+
+    Supporting Hello_World Tool.
+    """
+
     @classmethod
-    def create(cls, config: StackConfig | None = None, **kwargs: dict) -> "MCPStack.stack.MCPStackCore":
+    def create(
+        cls, config: StackConfig | None = None, **kwargs: dict
+    ) -> "MCPStack.stack.MCPStackCore":
+        """ "create function."""
         stack = MCPStackCore(config=config or StackConfig())
         tool = HelloWorld()
         return stack.with_tool(tool)
