@@ -55,6 +55,24 @@ dev = [
     "pytest-mock>=3.10.0",
     "aiohttp>=3.8.0",
     "pytest-cov>=6.2.1",
+    "mkdocs-material-extensions==1.3.1",
+    "mkdocs-minify-plugin==0.8.0",
+    "markdown-callouts>=0.4",
+    "markdown-exec>=1.8",
+    "mkdocs>=1.6.1",
+    "mkdocs-coverage>=1.0",
+    "mkdocs-gen-files>=0.5",
+    "mkdocs-git-revision-date-localized-plugin>=1.2",
+    "mkdocs-literate-nav>=0.6",
+    "mkdocs-minify-plugin>=0.8",
+    "mkdocstrings[python]>=0.25",
+    "tomli>=2.0; python_version < '3.11'",
+    "mkdocstrings-python>=1.16.10",
+    "mkdocs-jupyter>=0.25.1",
+    "pymdown-extensions>=10.14.3",
+    "mkdocs-material[emoji,imaging]>=9.6.11",
+    "mkdocs-document-dates>=3.1.5",
+    "mkdocs-glightbox>=0.4.0",
 ]
 mcp_tools = [
     # Add any MCPStack MCP supported tools of interest here. `uv sync --group mcp_tools`
@@ -92,7 +110,7 @@ select = [
     "C4",
 ]
 ignore = [
-    "E501",
+    "E501", "F821", "B027", "RUF001"
 ]
 
 [tool.ruff.format]

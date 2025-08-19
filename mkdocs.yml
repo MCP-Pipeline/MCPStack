@@ -1,0 +1,188 @@
+repo_url: https://github.com/MCP-Pipeline/MCPStack
+edit_uri: blob/main/docs/
+
+site_name: MCPStack
+site_author: Simon Provost
+copyright: Maintained by Simon Provost, 2025-present
+site_description: >
+  Stack & Orchestrate MCP Tools — The Scikit-Learn Way, For LLMs
+
+remote_branch: main
+
+theme:
+  name: 'material'
+  custom_dir: 'docs/theme'
+  favicon: 'assets/images/favicon.ico'
+  logo: 'assets/logo_dark.png'
+  icon:
+    repo: fontawesome/brands/github
+  language: en
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: scikit_light
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to system preference
+
+  font:
+    text: Roboto
+    code: Roboto Mono
+  features:
+    - announce.dismiss
+    - content.tabs.link
+    - content.code.copy
+    - content.code.select
+    - content.code.annotate
+    - navigation.tabs
+    - navigation.top
+    - search.suggest
+    - toc.follow
+    - toc.integrate
+
+
+extra_css:
+  - 'stylesheets/extra.css'
+  - 'stylesheets/landing.css'
+
+extra_javascript:
+  - javascripts/mathjax.js
+  - https://polyfill.io/v3/polyfill.min.js?features=es6
+  - https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js
+  - custom.js
+  - assets/js/marketplace-filter.js
+
+plugins:
+  - privacy
+  - social
+  - search
+  - minify
+  - glightbox:
+      touchNavigation: true
+      loop: false
+      effect: zoom
+      slide_effect: slide
+      width: 100%
+      height: auto
+      zoomable: true
+      draggable: true
+      auto_caption: false
+      caption_position: bottom
+  - document-dates:
+      position: bottom
+      type: date
+      locale: en
+      date_format: '%Y-%m-%d'
+      time_format: '%H:%M:%S'
+      exclude:
+        - index.md
+      show_author: true
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            selection:
+              docstring_style: google
+            heading_level: 3
+            show_source: true
+            show_root_heading: true
+            show_root_full_path: false
+
+extra:
+  social:
+      - icon: fontawesome/brands/github-alt
+        link: https://github.com/simonprovost/
+      - icon: fontawesome/brands/linkedin
+        link: https://www.linkedin.com/in/simonprovostdev/
+      - icon: fontawesome/brands/google-scholar
+        link: https://scholar.google.com/citations?user=Lv_LddYAAAAJ
+      - icon: fontawesome/brands/orcid
+        link: https://orcid.org/0000-0001-8402-5464
+      - icon: fontawesome/brands/researchgate
+        link: https://www.researchgate.net/profile/Provost-Simon
+      - icon: fontawesome/brands/stack-overflow
+        link: https://stackoverflow.com/users/9814037/simon-provost
+      - icon: fontawesome/solid/building-columns
+        link: https://www.kent.ac.uk/computing/people/4973/provost-simon
+
+markdown_extensions:
+  - markdown.extensions.admonition
+  - markdown.extensions.codehilite:
+      guess_lang: false
+  - def_list
+  - markdown.extensions.footnotes
+  - markdown.extensions.meta
+  - markdown.extensions.toc:
+      permalink: true
+  - pymdownx.arithmatex
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret
+  - pymdownx.critic
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - pymdownx.keys
+  - pymdownx.magiclink
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.blocks.caption
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
+  - attr_list
+  - md_in_html
+  - pymdownx.arithmatex:
+        generic: true
+
+nav:
+  - Home: index.md
+  - Getting Started:
+      - Overview: getting_started.md
+      - Concepts:
+          - Tools & Actions: guides/concepts/tools-and-actions.md
+          - Presets: guides/concepts/presets.md
+          - Configuration & Env Vars: guides/concepts/config-and-env.md
+          - MCP Hosts & Config Generators: guides/concepts/mcp-hosts-and-configs.md
+  - MCPs Marketplace: mcp_marketplace.md
+  - Tutorials:
+      - Build your first pipeline: tutorials/first-pipeline.md
+      - Saving & Loading Pipelines: tutorials/save-load.md
+      - Writing your first Tool: tutorials/first-tool.md
+      - Creating a Preset: tutorials/first-preset.md
+  - API Reference:
+      - MCPStack Core:
+          - MCPStackCore: API/mcpstackcore.md
+          - StackConfig: API/stackconfig.md
+      - Tools:
+          - BaseTool: API/tools/base_tool.md
+          - BaseToolCLI: API/tools/base_tool_cli.md
+          - Tool Discovery Registry: API/tools/registry.md
+          - Example Tool (HelloWorld): API/tools/hello_world.md
+      - Presets:
+          - Preset Base: API/presets/base.md
+          - Preset Registry: API/presets/registry.md
+      - MCP Config Generators:
+          - Registry: API/mcp_config_generators/registry.md
+          - FastMCP: API/mcp_config_generators/fastmcp.md
+          - Claude (ClaudeDesktop): API/mcp_config_generators/claude.md
+          - Universal: API/mcp_config_generators/universal.md
+      - Utilities:
+          - Exceptions: API/utils/exceptions.md
+          - Logging: API/utils/logging.md
+      - CLI (Programmatic):
+          - StackCLI: API/cli/stack_cli.md
