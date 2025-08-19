@@ -11,12 +11,12 @@ Tools are the **building blocks** of MCPStack pipelines. Each tool:
 ## What is an Action?
 
 An **action** is a function exposed to the LLM/host.  
-For example, in the `HelloWorld` tool:
+For example, in the `Hello_World` tool:
 
 ```python
 from MCPStack.core.tool.base import BaseTool
 
-class HelloWorld(BaseTool):
+class Hello_World(BaseTool):
     def actions(self):
         return [self.say_hello]
 

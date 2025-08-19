@@ -3,7 +3,7 @@ from collections.abc import Callable
 from MCPStack.core.tool.base import BaseTool
 
 
-class HelloWorld(BaseTool):
+class Hello_World(BaseTool):
     """Minimal example tool that exposes greetings in several languages.
 
     !!! note ""

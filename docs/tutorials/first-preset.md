@@ -18,13 +18,13 @@ Presets let you bundle tools together into a ready-made pipeline.
 ```python
 from MCPStack.core.preset.base import Preset
 from MCPStack.stack import MCPStackCore
-from MCPStack.tools.hello_world.hello_world import HelloWorld
+from MCPStack.tools.hello_world.hello_world import Hello_World
 
 class HelloPreset(Preset):
     @classmethod
     def create(cls, config=None, **kwargs):
         stack = MCPStackCore(config=config)
-        return stack.with_tool(HelloWorld())
+        return stack.with_tool(Hello_World())
 ```
 
 ---

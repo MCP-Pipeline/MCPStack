@@ -12,14 +12,14 @@ console = Console()
 
 
 @beartype
-class HelloWorldCLI(BaseToolCLI):
-    '''"""HelloWorldCLI class.
-    """'''
+class Hello_WorldCLI(BaseToolCLI):
+    """Hello_WorldCLI class.
+    """
 
     @classmethod
     def get_app(cls) -> typer.Typer:
-        '''"""get_app function.
-        """'''
+        """get_app function.
+        """
         app = typer.Typer(
             help="hello_world tool commands.",
             add_completion=False,
@@ -39,8 +39,8 @@ class HelloWorldCLI(BaseToolCLI):
             typer.Option("--prefix", "-p", help="Greeting prefix emoji/text."),
         ] = "👋",
     ) -> None:
-        '''"""init function.
-        """'''
+        """init function.
+        """
         console.print(f"[green]✅ Set default prefix to '{prefix}'[/green]")
         console.print("Export and run with:")
         console.print(f"\n    export MCP_HELLO_PREFIX='{prefix}'\n")
@@ -66,8 +66,8 @@ class HelloWorldCLI(BaseToolCLI):
             bool, typer.Option("--verbose", "-v", help="Print config.")
         ] = False,
     ) -> ToolConfig:
-        '''"""configure function.
-        """'''
+        """configure function.
+        """
         env_vars = {}
         tool_params = {}
         if prefix is None:
@@ -95,8 +95,8 @@ class HelloWorldCLI(BaseToolCLI):
 
     @classmethod
     def status(cls, verbose: bool = False) -> None:
-        '''"""status function.
-        """'''
+        """status function.
+        """
         import os
 
         prefix = os.getenv("MCP_HELLO_PREFIX", "")

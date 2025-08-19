@@ -1,4 +1,4 @@
-# HelloWorld Tool (example)
+# Hello_World Tool (example)
 
 ::: MCPStack.tools.hello_world.hello_world
     options:

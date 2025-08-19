@@ -4,15 +4,15 @@ from pathlib import Path
 from typer.testing import CliRunner
 
 from MCPStack.cli import StackCLI
-from MCPStack.tools.hello_world import HelloWorld
+from MCPStack.tools.hello_world import Hello_World
 
 runner = CliRunner()
 app = StackCLI().app
 
 
-class TestHelloWorldTool:
+class TestHello_WorldTool:
     def test_actions(self):
-        tool = HelloWorld()
+        tool = Hello_World()
         actions = tool.actions()
         names = [fn.__name__ for fn in actions]
         assert "say_hello_world_in_french" in names
@@ -21,7 +21,7 @@ class TestHelloWorldTool:
         assert "say_hello_world_in_chinese" in names
 
     def test_outputs(self):
-        tool = HelloWorld()
+        tool = Hello_World()
         assert tool.say_hello_world_in_french() == "Bonjour le monde"
         assert tool.say_hello_world_in_italian() == "Ciao mondo"
         assert tool.say_hello_world_in_german() == "Hallo Welt"

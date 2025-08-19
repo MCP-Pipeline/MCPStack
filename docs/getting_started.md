@@ -28,7 +28,7 @@ If you prefer `pip`, it works the same.
 
 ---
 
-## 2. Creating a pipeline with HelloWorld
+## 2. Creating a pipeline with Hello_World
 
 The `hello_world` tool is bundled with MCPStack. It exposes a single action (`say_hello`) to demonstrate the tool interface.
 
@@ -46,10 +46,10 @@ The `hello_world` tool is bundled with MCPStack. It exposes a single action (`sa
     You can also build pipelines directly in Python:
     ```python
     from MCPStack.stack import MCPStackCore
-    from MCPStack.tools.hello_world.hello_world import HelloWorld
+    from MCPStack.tools.hello_world.hello_world import Hello_World
 
     stack = MCPStackCore()
-    stack = stack.with_tool(HelloWorld())
+    stack = stack.with_tool(Hello_World())
     stack.save("my_pipeline.json")
     ```
 

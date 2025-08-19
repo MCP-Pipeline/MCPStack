@@ -13,18 +13,18 @@ Presets are **pre-wired pipelines**. Instead of manually composing tools, you ca
 
 ---
 
-## Example: HelloWorld preset
+## Example: Hello_World preset
 
 ```python
 from MCPStack.core.preset.base import Preset
 from MCPStack.stack import MCPStackCore
-from MCPStack.tools.hello_world.hello_world import HelloWorld
+from MCPStack.tools.hello_world.hello_world import Hello_World
 
 class HelloPreset(Preset):
     @classmethod
     def create(cls, config=None, **kwargs):
         stack = MCPStackCore(config=config)
-        return stack.with_tool(HelloWorld())
+        return stack.with_tool(Hello_World())
 ```
 
 ---

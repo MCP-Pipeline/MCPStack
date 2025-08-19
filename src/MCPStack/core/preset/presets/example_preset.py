@@ -1,7 +1,7 @@
 from MCPStack.core.config import StackConfig
 from MCPStack.core.preset.base import Preset
 from MCPStack.stack import MCPStackCore
-from MCPStack.tools.hello_world import HelloWorld
+from MCPStack.tools.hello_world import Hello_World
 
 
 class ExamplePreset(Preset):
@@ -16,5 +16,5 @@ class ExamplePreset(Preset):
     ) -> "MCPStack.stack.MCPStackCore":
         """ "create function."""
         stack = MCPStackCore(config=config or StackConfig())
-        tool = HelloWorld()
+        tool = Hello_World()
         return stack.with_tool(tool)

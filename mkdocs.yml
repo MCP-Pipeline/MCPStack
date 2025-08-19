@@ -172,7 +172,7 @@ nav:
           - BaseTool: API/tools/base_tool.md
           - BaseToolCLI: API/tools/base_tool_cli.md
           - Tool Discovery Registry: API/tools/registry.md
-          - Example Tool (HelloWorld): API/tools/hello_world.md
+          - Example Tool (Hello_World): API/tools/hello_world.md
       - Presets:
           - Preset Base: API/presets/base.md
           - Preset Registry: API/presets/registry.md

@@ -5,9 +5,9 @@ In this tutorial, you’ll learn how to build your first MCPStack pipeline step 
 
 ---
 
-## 1. Create a simple pipeline with `HelloWorld`
+## 1. Create a simple pipeline with `Hello_World`
 
-MCPStack ships with a demo tool called `HelloWorld`. Let’s use it.
+MCPStack ships with a demo tool called `Hello_World`. Let’s use it.
 
 === "CLI"
 
@@ -19,10 +19,10 @@ MCPStack ships with a demo tool called `HelloWorld`. Let’s use it.
 
     ```python
     from MCPStack.stack import MCPStackCore
-    from MCPStack.tools.hello_world.hello_world import HelloWorld
+    from MCPStack.tools.hello_world.hello_world import Hello_World
 
     stack = MCPStackCore()
-    stack = stack.with_tool(HelloWorld())
+    stack = stack.with_tool(Hello_World())
     stack.save("hello_pipeline.json")
     ```
 
