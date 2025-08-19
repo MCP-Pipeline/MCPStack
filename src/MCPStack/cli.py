@@ -455,7 +455,6 @@ class StackCLI:
             pipeline_path = to_pipeline or new_pipeline
             if to_pipeline and Path(to_pipeline).exists():
                 stack: MCPStackCore = MCPStackCore.load(to_pipeline)
-                print("YOOOO?")
                 console.print(f"[bold green]💬 Appending to {to_pipeline}[/bold green]")
             else:
                 stack = MCPStackCore()
@@ -465,9 +464,7 @@ class StackCLI:
             stack.config.merge_env(tool_dict.get("env_vars", {}))
             tool_cls = ALL_TOOLS[tool_name]
             tool = tool_cls.from_dict(tool_dict.get("tool_params", {}))  # type: ignore
-            print(f"TOOL: {tool}")
             stack = stack.with_tool(tool)
-            print(f"sTack: {stack}")
             stack.build()
             stack.save(pipeline_path)
             console.print(
@@ -527,74 +524,87 @@ class StackCLI:
             console.print(table)
 
     def _load_tool_clis(self) -> Dict[str, typer.Typer]:
-        """Import tool CLI modules and mount them under `tools`.
+        """Discover and mount tool CLIs under `mcpstack tools`."""
+        tool_clis: Dict[str, typer.Typer] = {}
 
-        Returns:
-            dict[str, typer.Typer]: Mapping of tool name to Typer app for tools
-            that expose a CLI (empty if none).
-
-        Discovery:
-            Attempts to import `MCPStack.tools.<tool>.cli` and collect classes
-            deriving from :class:`BaseToolCLI`.
-
-        !!! note "Graceful failures"
-            Missing modules or tools without CLI apps are silently skipped.
-        """
-        tool_clis = {}
         for tool_name in ALL_TOOLS:
-            if cli := self._load_tool_cli(tool_name):
-                tool_clis[tool_name] = cli
+            if app := self._load_tool_cli(tool_name):
+                tool_clis[tool_name] = app
                 self.tools_app.add_typer(
-                    cli, name=tool_name, help=f"{tool_name} tool commands."
+                    app, name=tool_name, help=f"{tool_name} tool commands."
                 )
+            else:
+                logger.debug("No CLI found for tool '%s'", tool_name)
+
         return tool_clis
 
     @staticmethod
     def _load_tool_cli(tool_name: str):
-        """Import a single tool CLI module and return its Typer app.
-
-        Args:
-            tool_name: Registered tool name.
-
-        Returns:
-            typer.Typer | None: The app if found; otherwise `None`.
-
-        !!! tip "Tool-side API"
-            Tools expose a CLI by implementing :class:`BaseToolCLI` and
-            returning a Typer app via `get_app()`.
+        """Return a Typer app for a tool CLI, either internal or external
         """
         try:
+            from importlib.metadata import entry_points
+
+            eps = entry_points().select(group="mcpstack.tool_clis")
+            for ep in eps:
+                if ep.name.lower() != tool_name.lower():
+                    continue
+                obj = ep.load()
+                app = _materialize_cli_app(obj)
+                if app:
+                    return app
+        except Exception as e:
+            logger.debug(
+                "Entry point CLI load failed for '%s': %s", tool_name, e, exc_info=True
+            )
+
+        try:
             module = importlib.import_module(f"MCPStack.tools.{tool_name}.cli")
-            tool_cli_classes = [
-                obj
-                for _, obj in inspect.getmembers(module)
-                if inspect.isclass(obj)
-                and issubclass(obj, BaseToolCLI)
-                and obj is not BaseToolCLI
-            ]
-            if not tool_cli_classes:
-                return None
-            app = tool_cli_classes[0].get_app()
-            return app
+            # Prefer a BaseToolCLI subclass, else a top-level get_app(), else a Typer app
+            for _, cls in inspect.getmembers(module, inspect.isclass):
+                if issubclass(cls, BaseToolCLI) and cls is not BaseToolCLI:
+                    app = cls.get_app()
+                    if app:
+                        return app
+            get_app = getattr(module, "get_app", None)
+            if callable(get_app):
+                return get_app()
         except ModuleNotFoundError:
             return None
         except Exception as e:
-            logger.debug(f"Failed loading CLI for '{tool_name}': {e}")
-            return None
+            logger.debug(
+                "Built-in CLI load failed for '%s': %s", tool_name, e, exc_info=True
+            )
+
+        return None
 
     @staticmethod
     def _get_tool_cli_class(tool_name: str):
-        """Return the `BaseToolCLI` subclass from a tool's CLI module.
+        """Return the BaseToolCLI subclass for a tool (if provided as a class).
 
-        Args:
-            tool_name: Registered tool name.
+        Supports:
+          * Entry point 'mcpstack.tool_clis' (object must be a BaseToolCLI subclass)
+          * MCPStack.tools.<tool_name>.cli (first-party fallback)
 
-        Returns:
-            type[BaseToolCLI]: The discovered CLI class.
-
-        Raises:
-            RuntimeError: If the module exists but no CLI class is exposed.
+        If the CLI is exposed only as a callable / app, this accessor will not apply.
         """
+        try:
+            from importlib.metadata import entry_points
+
+            eps = entry_points().select(group="mcpstack.tool_clis")
+            for ep in eps:
+                if ep.name.lower() != tool_name.lower():
+                    continue
+                obj = ep.load()
+                if (
+                    inspect.isclass(obj)
+                    and issubclass(obj, BaseToolCLI)
+                    and obj is not BaseToolCLI
+                ):
+                    return obj
+        except Exception:
+            pass
+
         module = importlib.import_module(f"MCPStack.tools.{tool_name}.cli")
         tool_cli_classes = [
             obj
@@ -685,6 +695,25 @@ class StackCLI:
                 )
             )
 
+
+def _materialize_cli_app(obj):
+    """Return a Typer app from an entry-point object.
+
+    Accepts:
+      - BaseToolCLI subclass (calls get_app())
+      - Callable returning a Typer app
+      - A Typer app instance directly
+    """
+    try:
+        if inspect.isclass(obj) and issubclass(obj, BaseToolCLI) and obj is not BaseToolCLI:
+            return obj.get_app()
+        if callable(obj):
+            return obj()
+        if hasattr(obj, "registered_groups") or obj.__class__.__name__ == "Typer":
+            return obj
+    except Exception as e:
+        logger.debug("Failed materializing Typer app: %s", e, exc_info=True)
+    return None
 
 def main_cli() -> None:
     StackCLI()()

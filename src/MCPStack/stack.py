@@ -284,14 +284,11 @@ class MCPStackCore:
         if not self._built:
             raise MCPStackBuildError("Call .build() before .save()")
 
-        def to_snake_case(name: str) -> str:
-            return re.sub(r"(?<!^)(?=[A-Z])", "_", name).lower()
-
         data = {
             "config": self.config.to_dict(),
             "tools": [
                 {
-                    "type": to_snake_case(tool.__class__.__name__),
+                    "type": tool.__class__.__name__.lower(),
                     "params": tool.to_dict(),
                 }
                 for tool in self.tools

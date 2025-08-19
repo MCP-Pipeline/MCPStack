@@ -71,8 +71,8 @@ def _discover_entrypoint_tools() -> None:
             cls = ep.load()
             if isinstance(cls, type) and issubclass(cls, BaseTool):
                 ALL_TOOLS[ep.name.lower()] = cls
-        except Exception:
-            logger.debug("Failed loading entry point %s", ep.name, exc_info=True)
+        except Exception as e:
+            logger.error("Failed to load entry point %s: %s", ep.name, e, exc_info=True)
 
 
 _discover_tools()
