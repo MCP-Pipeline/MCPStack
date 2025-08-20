@@ -1,0 +1,46 @@
+cff-version: "1.2.0"
+message: "If you use this software, please cite it as below."
+type: software
+
+title: "MCPStack"
+abstract: "Stack & Orchestrate MCP Tools — The Scikit-Learn-Pipeline Way , For LLMs"
+version: "0.0.1"
+date-released: "2025-08-20"
+license: "MIT"
+repository-code: "https://github.com/MCP-Pipeline/MCPStack"
+url: "https://github.com/MCP-Pipeline"
+
+keywords:
+  - "MCP"
+  - "LLM"
+  - "Machine Learning"
+  - "Pipeline"
+  - "Scikit-Learn"
+  - "Orchestration"
+
+authors:
+  - given-names: "Simon"
+    family-names: "Provost"
+    affiliation: "University of Kent"
+    email: "simon.gilbert.provost@gmail.com"
+    orcid: "https://orcid.org/0000-0001-8402-5464"
+
+contact:
+  - given-names: "Simon"
+    family-names: "Provost"
+    email: "simon.gilbert.provost@gmail.com"
+
+preferred-citation:
+  type: software
+  title: "MCPStack: Stack & Orchestrate MCP Tools — The Scikit-Learn-Pipeline Way, For LLMs"
+  version: "0.0.1"
+  url: "https://github.com/MCP-Pipeline/MCPStack"
+  authors:
+    - family-names: "Provost"
+      given-names: "Simon"
+      orcid: "https://orcid.org/0000-0001-8402-5464"
+
+notes: >
+  We thank the M3’s MCP initial work from @rafiattrach, @rajna-fani, @MoreiraP12 for inspiration and which made our
+  contributions to the MCPStack project. Innovations on top of M3 in this project include the use of
+  Scikit-Learn-style pipelines for MCP tools rather than transformers / estimators.
