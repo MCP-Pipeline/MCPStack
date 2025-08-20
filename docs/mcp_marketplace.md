@@ -37,15 +37,15 @@ your_tool_name = "mcpstack_your_tool_name.tool:YourTool"
 
     [:octicons-arrow-right-24: ~~View Repository~~](#)
 
--   :material-table:{ .lg .middle } __Lorem Ipsum__
-    {: data-marketplace-card data-filter="lorem ipsum placeholder example demo"}
+-   :material-table:{ .lg .middle } __MIMIC__
+    {: data-marketplace-card data-filter="MIMIC-IV Conversational AI Healthcare Database"}
 
     ---
 
-    Lorem ipsum dolor sit ame consectetur adipiscing elit, sed do eiusmod 
+    MCPStack MIMIC is a MCP tool that allows to communicate with the MIMIC-IV clinical database.
 
 
-    [:octicons-arrow-right-24: View Repository](#)
+    [:octicons-arrow-right-24: View Repository](https://github.com/MCP-Pipeline/mcpstack-mimic)
 
 </div>
 

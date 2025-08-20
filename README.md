@@ -14,6 +14,7 @@
 </a>
 <img alt="ruff" src="https://img.shields.io/badge/Ruff-lint%2Fformat-9C27B0?style=for-the-badge&logo=ruff&logoColor=white">
 <img alt="python" src="https://img.shields.io/badge/Python-3.9%2B-3776AB?style=for-the-badge&logo=python&logoColor=white">
+<img alt="pytest coverage" src="https://img.shields.io/badge/Coverage-77%25-brightgreen?style=for-the-badge&logo=pytest">
 <img alt="license" src="https://img.shields.io/badge/License-MIT-success?style=for-the-badge">
 
 <div align="center">
@@ -27,6 +28,10 @@
 </div>
 
 </div>
+
+> [!IMPORTANT]
+> 📣Come Check Out Our MCPs Marketplace, on the documentation!
+> 🎉 MCPStack MIMIC MCP tool, available!
 
 ## <a id="about-the-project"></a>💡 About The Project
 
