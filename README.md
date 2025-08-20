@@ -30,8 +30,9 @@
 </div>
 
 > [!IMPORTANT]
-> 📣Come Check Out Our MCPs Marketplace, on the documentation!
-> 🎉 MCPStack MIMIC MCP tool, available!
+> * 📣Come Check Out Our MCPs Marketplace, on the documentation!
+> * 🥇The Documentation is now available at [MCPStack Documentation](https://mcpstack.readthedocs.io/en/latest/).
+> * 🎉 MCPStack MIMIC MCP tool, available!
 
 ## <a id="about-the-project"></a>💡 About The Project
 
