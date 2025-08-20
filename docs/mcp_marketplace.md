@@ -47,6 +47,16 @@ your_tool_name = "mcpstack_your_tool_name.tool:YourTool"
 
     [:octicons-arrow-right-24: View Repository](https://github.com/MCP-Pipeline/mcpstack-mimic)
 
+-   :material-table:{ .lg .middle } __Jupyter__
+    {: data-marketplace-card data-filter="Jupyter Notebook MCP Server, let LLMs build reproducible notebooks"}
+
+    ---
+
+    MCPStack Jupyter is a MCP tool that allows to modify, create, and run Jupyter Notebooks. Make reproducible notebooks!
+
+
+    [:octicons-arrow-right-24: View Repository](https://github.com/MCP-Pipeline/mcpstack-jupyter)
+
 </div>
 
 !!! tip
