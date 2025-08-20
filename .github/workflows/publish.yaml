@@ -1,64 +1,92 @@
-#name: Publish to PyPI
-#
-#on:
-#  release:
-#    types: [published]
-#  workflow_dispatch:  # Allow manual triggering
-#
-#jobs:
-#  publish:
-#    runs-on: ubuntu-latest
-#    environment:
-#      name: pypi
-#      url: https://pypi.org/p/mcpstack
-#    permissions:
-#      id-token: write  # IMPORTANT: this permission is mandatory for trusted publishing
-#      contents: read
-#
-#    steps:
-#    - uses: actions/checkout@v4
-#
-#    - name: Set up uv
-#      uses: astral-sh/setup-uv@v5
-#      with:
-#        version: "latest"
-#        python-version: "3.11"
-#
-#    - name: Extract version from tag
-#      id: get_version
-#      run: |
-#        # Get version from git tag (removes 'v' prefix if present)
-#        VERSION=${GITHUB_REF#refs/tags/}
-#        VERSION=${VERSION#v}
-#        echo "version=$VERSION" >> $GITHUB_OUTPUT
-#        echo "Publishing version: $VERSION"
-#
-#    - name: Verify tag matches __version__ in src/MCPStack/__init__.py
-#      run: |
-#        # Update version in pyproject.toml to match the git tag
-#        sed -i "s/version = \".*\"/version = \"${{ steps.get_version.outputs.version }}\"/" pyproject.toml
-#        echo "Updated pyproject.toml version to ${{ steps.get_version.outputs.version }}"
-#        cat pyproject.toml | grep version
-#
-#    - name: Lock dependencies
-#      run: uv lock --locked
-#
-#    - name: Sync dependencies including dev
-#      run: uv sync --all-groups
-#
-#    - name: Run quick tests
-#      run: |
-#        uv add pytest==7.4.3
-#        uv add pytest-asyncio
-#        uv run pytest tests/ -v --tb=short
-#
-#    - name: Build package
-#      run: uv build
-#
-#    - name: Verify package
-#      run: uv run --with twine twine check dist/*
-#
-#    - name: Publish to PyPI
-#      uses: pypa/gh-action-pypi-publish@release/v1
-#      with:
-#        print-hash: true
+name: Publish to PyPI
+
+on:
+  release:
+    types: [published]
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:  # Allow manual triggering
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/mcpstack
+    permissions:
+      id-token: write  # IMPORTANT: this permission is mandatory for trusted publishing
+      contents: read
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up uv
+      uses: astral-sh/setup-uv@v5
+      with:
+        version: "latest"
+        python-version: "3.11"
+
+    - name: Resolve version
+      id: get_version
+      run: |
+        set -euo pipefail
+        if [[ "${GITHUB_REF:-}" == refs/tags/* ]]; then
+          VERSION="${GITHUB_REF#refs/tags/}"
+          VERSION="${VERSION#v}"
+          echo "from=tag" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Publishing version from tag: $VERSION"
+        else
+          # Fallback to version defined in src/MCPStack/__init__.py when manually dispatched or on branches
+          VERSION=$(python - <<'PY'
+          import re, pathlib
+          p = pathlib.Path('src/MCPStack/__init__.py')
+          m = re.search(r'__version__\s*=\s*"([^"]+)"', p.read_text())
+          print(m.group(1) if m else '')
+          PY
+          )
+          if [[ -z "$VERSION" ]]; then
+            echo "::error ::Could not determine version from src/MCPStack/__init__.py"; exit 1
+          fi
+          echo "from=init" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Publishing version from __init__.py: $VERSION"
+        fi
+
+    - name: Verify version consistency
+      run: |
+        set -euo pipefail
+        INIT_VER=$(grep -Po '__version__\s*=\s*"\K[^"]+' src/MCPStack/__init__.py)
+        echo "__init__ version: $INIT_VER"
+        echo "resolved version: ${{ steps.get_version.outputs.version }}"
+        if [[ "${GITHUB_REF:-}" == refs/tags/* ]]; then
+          # If triggered by a tag/release, require that the tag matches the version in __init__.py
+          if [[ "$INIT_VER" != "${{ steps.get_version.outputs.version }}" ]]; then
+            echo "::error ::Version mismatch: tag ${{ steps.get_version.outputs.version }} != src/MCPStack/__init__.py $INIT_VER";
+            exit 1
+          fi
+        fi
+
+    - name: Lock dependencies
+      run: uv lock --locked
+
+    - name: Sync dependencies including dev
+      run: uv sync --all-groups
+
+    - name: Run quick tests
+      run: |
+        uv add pytest==7.4.3
+        uv add pytest-asyncio
+        uv run pytest tests/ -v --tb=short
+
+    - name: Build package
+      run: uv build
+
+    - name: Verify package
+      run: uv run --with twine twine check dist/*
+
+    - name: Publish to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        print-hash: true
