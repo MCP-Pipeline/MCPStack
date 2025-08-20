@@ -55,45 +55,39 @@ enabling tools and libraries to communicate successfully with a uniform workflow
 
 ## Installation
 
-> [!NOTE]
-> MCPStack is the orchestrator — it comes with core utilities and validated tools.
-> All validated tools are listed under `mcp_tools` in the `pyproject.toml` and are auto-registered via
-> `[project.entry-points."mcpstack.tools"]`.
-
-### Clone the repository
-
-```bash
-git clone https://github.com/MCP-Pipeline/MCPStack.git
-cd MCPStack
-```
-
 ### Install dependencies
 
-Using UV (recommended):
+Using `UV` _(recommended, [see Astral UV official doc here](https://docs.astral.sh/uv/))_:
 
 ```bash
-uv sync
+uv add mcpstack
 ```
 
-Using pip:
+Using `pip`:
 
 ```bash
-pip install -e .[dev]
+pip install mcpstack
 ```
 
 ### Install pre-commit hooks
 
-Via UV:
+Via `UV`:
 
 ```bash
 uv run pre-commit install
 ```
 
-Via pip:
+Via `pip`:
 
 ```bash
 pre-commit install
 ```
+
+> [!NOTE]
+> MCPStack is the orchestrator — it comes with core utilities and validated tools.
+> All MCPStack MCP tools are auto-registered via their `[project.entry-points."mcpstack.tools"]`.
+> As such, simply add the tool(s) of interest via `UV` or `pip`, and it/they will be auto-registered.
+
 
 ## 🖥️ CLI Workflow
 
