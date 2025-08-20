@@ -186,3 +186,5 @@ nav:
           - Logging: API/utils/logging.md
       - CLI (Programmatic):
           - StackCLI: API/cli/stack_cli.md
+  - "Branding & UX": ./BRANDING.md
+
