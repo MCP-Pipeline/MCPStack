@@ -14,14 +14,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Cache uv
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/uv
-            .venv
-          key: ${{ runner.os }}-uv-${{ hashFiles('**/pyproject.toml', '**/pdm.lock', '**/uv.lock') }}
-
       - name: Install UV and Python
         uses: astral-sh/setup-uv@v5
         with:
