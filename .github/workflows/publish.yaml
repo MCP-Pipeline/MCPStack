@@ -34,25 +34,17 @@ jobs:
         if [[ "${GITHUB_REF:-}" == refs/tags/* ]]; then
           VERSION="${GITHUB_REF#refs/tags/}"
           VERSION="${VERSION#v}"
-          echo "from=tag" >> "$GITHUB_OUTPUT"
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "Publishing version from tag: $VERSION"
+          FROM=tag
         else
-          # Fallback to version defined in src/MCPStack/__init__.py when manually dispatched or on branches
-          VERSION=$(python - <<'PY'
-          import re, pathlib
-          p = pathlib.Path('src/MCPStack/__init__.py')
-          m = re.search(r'__version__\s*=\s*"([^"]+)"', p.read_text())
-          print(m.group(1) if m else '')
-          PY
-          )
+          VERSION=$(python -c "import re,pathlib; p=pathlib.Path('src/MCPStack/__init__.py'); m=re.search(r'__version__\\s*=\\s*\"([^\"]+)\"', p.read_text()); print(m.group(1) if m else '')")
+          FROM=init
           if [[ -z "$VERSION" ]]; then
             echo "::error ::Could not determine version from src/MCPStack/__init__.py"; exit 1
           fi
-          echo "from=init" >> "$GITHUB_OUTPUT"
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "Publishing version from __init__.py: $VERSION"
         fi
+        echo "from=$FROM" >> "$GITHUB_OUTPUT"
+        echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+        echo "Publishing version: $VERSION (source: $FROM)"
 
     - name: Verify version consistency
       run: |
