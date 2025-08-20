@@ -1,7 +1,7 @@
 /* 1. Plug-in styles
     including icons, fonts, colors, etc
     */
-/* 
+/*
 .document-dates-plugin {
     color: rgba(109, 157, 204, 0.7);
     font-size: 0.75rem;
@@ -17,7 +17,7 @@
     update:     update, check_circle, task, refresh
     person:     person, account_circle
     group:      group, groups */
-/* 
+/*
 .document-dates-plugin .material-icons[data-icon="doc_created"]::before {
     content: "add_circle";
 }
@@ -36,7 +36,7 @@
 /* 2. Plug-in wrapper styles
     including divider, margin, padding, etc
     */
-/* 
+/*
 .document-dates-plugin-wrapper.document-dates-top {
     border-bottom: 1px solid rgba(142, 142, 142, 0.15);
 }
@@ -51,7 +51,7 @@
     */
 
 /* Demo of the custom theme 'sorrel' and 'sublime', you can configure it in user.config.js (optional) */
-/* 
+/*
 .tippy-box[data-theme~='sorrel'] {
     background-color: #F7E6E2;
     color: #B1402A;

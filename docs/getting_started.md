@@ -3,15 +3,15 @@
 
 This quickstart walks you through:
 
-1. Installing **MCPStack**  
-2. Building a pipeline with the `hello_world` tool — both **via CLI** and **programmatically**  
+1. Installing **MCPStack**
+2. Building a pipeline with the `hello_world` tool — both **via CLI** and **programmatically**
 3. Running it with an MCP host configuration (`fastmcp` or **Claude Desktop**)
 
 ---
 
 ## 1. Installation
 
-We recommend installing via [**uv**](https://github.com/astral-sh/uv), which provides fast, isolated environments.  
+We recommend installing via [**uv**](https://github.com/astral-sh/uv), which provides fast, isolated environments.
 If you prefer `pip`, it works the same.
 
 === "uv"

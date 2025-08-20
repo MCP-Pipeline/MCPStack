@@ -7,8 +7,8 @@ MCPStack can target different **MCP hosts** by generating configuration files.
 
 ## Supported hosts
 
-- **FastMCP** — lightweight reference host (for testing/debugging)  
-- **Claude Desktop** — Anthropic’s local integration  
+- **FastMCP** — lightweight reference host (for testing/debugging)
+- **Claude Desktop** — Anthropic’s local integration
 - **Universal** — a generic config emitter
 
 ---

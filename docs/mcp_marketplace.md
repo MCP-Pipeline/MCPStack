@@ -7,7 +7,7 @@ Whether you’re a researcher, clinician, or developer, the Marketplace helps yo
 
 ## 🚀 How to Use an MCP Tool
 
-All MCPStack-compatible tools must register themselves via an **entry point** in their `pyproject.toml`.  
+All MCPStack-compatible tools must register themselves via an **entry point** in their `pyproject.toml`.
 This makes tools **auto-discoverable** once you `uv add` (or `pip install`) their repository.
 
 ```toml

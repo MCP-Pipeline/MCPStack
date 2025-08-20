@@ -3,14 +3,14 @@
 
 Tools are the **building blocks** of MCPStack pipelines. Each tool:
 
-* Encapsulates logic (e.g. querying MIMIC-IV, running Jupyter, calling scikit-longitudinal classifiers)  
+* Encapsulates logic (e.g. querying MIMIC-IV, running Jupyter, calling scikit-longitudinal classifiers)
 * Exposes **actions** — Python callables that the MCP host can invoke
 
 ---
 
 ## What is an Action?
 
-An **action** is a function exposed to the LLM/host.  
+An **action** is a function exposed to the LLM/host.
 For example, in the `Hello_World` tool:
 
 ```python

@@ -7,7 +7,7 @@ MCPStack uses a central `StackConfig` object to manage configuration.
 
 ## Environment Variables
 
-Tools may require environment variables (API keys, paths, etc).  
+Tools may require environment variables (API keys, paths, etc).
 MCPStack validates and merges these via `StackConfig`.
 
 ```python

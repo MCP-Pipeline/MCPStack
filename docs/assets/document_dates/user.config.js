@@ -21,31 +21,31 @@ DocumentDates.setConfig({
         offset: [0, 6],         // placement offset: [horizontal, vertical]
         interactive: true,      // content in Tooltip is interactive
         allowHTML: true,        // whether to allow HTML in the tooltip content
-        
+
         animation: 'scale',     // animation type: scale shift-away
         inertia: true,          // animation inertia
         // arrow: false,           // whether to allow arrows
 
         // animateFill: true,      // determines if the background fill color should be animated
 
-        // delay: [400, null],     // delay: [show, hide], show delay is 400ms, hide delay is the default        
+        // delay: [400, null],     // delay: [show, hide], show delay is 400ms, hide delay is the default
     }
 });
 */
 
-/* 
+/*
     Hook System of Tooltip
-    The hook system allows you to execute custom logic at specific times, 
+    The hook system allows you to execute custom logic at specific times,
     such as adding custom interactions before the tooltip initialization and after initialization.
 */
 
 /*
 DocumentDates.registerHook('beforeInit', async (context) => {
-    
+
 });
 
 DocumentDates.registerHook('afterInit', async (context) => {
-    
+
 });
 */
 

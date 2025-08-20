@@ -7,8 +7,8 @@ Presets let you bundle tools together into a ready-made pipeline.
 
 ## 1. Why Presets?
 
-- Reuse common stacks  
-- Share reproducible research pipelines  
+- Reuse common stacks
+- Share reproducible research pipelines
 - Give users a one-liner to spin up a workflow
 
 ---

@@ -7,9 +7,9 @@ Presets are **pre-wired pipelines**. Instead of manually composing tools, you ca
 
 !!! tip
 
-    * Reduce boilerplate — zero-config pipelines for common use cases  
-    * Enable reproducibility (research / clinical workflows)  
-    * Provide a smooth on-ramp for end users  
+    * Reduce boilerplate — zero-config pipelines for common use cases
+    * Enable reproducibility (research / clinical workflows)
+    * Provide a smooth on-ramp for end users
 
 ---
 

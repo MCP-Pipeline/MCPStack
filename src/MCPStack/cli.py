@@ -540,8 +540,7 @@ class StackCLI:
 
     @staticmethod
     def _load_tool_cli(tool_name: str):
-        """Return a Typer app for a tool CLI, either internal or external
-        """
+        """Return a Typer app for a tool CLI, either internal or external"""
         try:
             from importlib.metadata import entry_points
 
@@ -705,7 +704,11 @@ def _materialize_cli_app(obj):
       - A Typer app instance directly
     """
     try:
-        if inspect.isclass(obj) and issubclass(obj, BaseToolCLI) and obj is not BaseToolCLI:
+        if (
+            inspect.isclass(obj)
+            and issubclass(obj, BaseToolCLI)
+            and obj is not BaseToolCLI
+        ):
             return obj.get_app()
         if callable(obj):
             return obj()
@@ -714,6 +717,7 @@ def _materialize_cli_app(obj):
     except Exception as e:
         logger.debug("Failed materializing Typer app: %s", e, exc_info=True)
     return None
+
 
 def main_cli() -> None:
     StackCLI()()

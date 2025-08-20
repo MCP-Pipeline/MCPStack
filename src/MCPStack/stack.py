@@ -1,7 +1,6 @@
 import json
 import logging
 import os
-import re
 
 from beartype import beartype
 from beartype.typing import Any, List, Optional, Union
