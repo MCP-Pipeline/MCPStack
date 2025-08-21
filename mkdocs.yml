@@ -48,6 +48,7 @@ theme:
 extra_css:
   - 'stylesheets/extra.css'
   - 'stylesheets/landing.css'
+  - 'stylesheets/extra_mkdocs.css'
 
 extra_javascript:
   - javascripts/mathjax.js
