@@ -161,10 +161,12 @@ nav:
           - MCP Hosts & Config Generators: guides/concepts/mcp-hosts-and-configs.md
   - MCPs Marketplace: mcp_marketplace.md
   - Tutorials:
+      - Overview: tutorials/index.md
       - Build your first pipeline: tutorials/first-pipeline.md
       - Saving & Loading Pipelines: tutorials/save-load.md
       - Writing your first Tool: tutorials/first-tool.md
       - Creating a Preset: tutorials/first-preset.md
+      - MIMIC + Jupyter Pipeline: tutorials/mimic-jupyter.md
   - API Reference:
       - MCPStack Core:
           - MCPStackCore: API/mcpstackcore.md
