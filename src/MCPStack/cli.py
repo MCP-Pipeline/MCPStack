@@ -19,6 +19,7 @@ from rich_pyfiglet import RichFiglet
 from thefuzz import process
 
 from MCPStack.core.config import StackConfig
+from MCPStack.core.docker import DockerBuilder, DockerConfigGenerator, DockerfileGenerator
 from MCPStack.core.preset.registry import ALL_PRESETS
 from MCPStack.core.tool.cli.base import BaseToolCLI
 from MCPStack.core.utils.exceptions import MCPStackPresetError
@@ -81,6 +82,21 @@ class StackCLI:
             self.pipeline
         )
         self.app.command(help="Search presets/tools.")(self.search)
+
+        # Docker subcommands
+        self.docker_app: typer.Typer = typer.Typer(help="Docker containerization commands.")
+        self.app.add_typer(
+            self.docker_app, name="docker", help="Docker containerization subcommands."
+        )
+        self.docker_app.command(help="Generate Dockerfile for MCPStack pipeline.")(
+            self.docker_dockerfile
+        )
+        self.docker_app.command(help="Build Docker image from pipeline.")(
+            self.docker_build
+        )
+        self.docker_app.command(help="Generate Claude Desktop config for Docker.")(
+            self.docker_config
+        )
 
         # Tool-specific subcommands (loaded if a tool provides a CLI module)
         self.tools_app: typer.Typer = typer.Typer(help="Tool-specific commands.")
@@ -635,6 +651,199 @@ class StackCLI:
                 tool_cli_class.status(verbose=verbose)
             except Exception as e:
                 logger.debug(f"Status not available for '{_tool}': {e}")
+
+    def docker_dockerfile(
+        self,
+        pipeline: Annotated[
+            Optional[str],
+            typer.Option("--pipeline", help="Path to pipeline JSON file."),
+        ] = None,
+        presets: Annotated[
+            Optional[str],
+            typer.Option("--presets", help="Comma-separated preset names."),
+        ] = None,
+        output: Annotated[
+            str,
+            typer.Option("--output", "-o", help="Output Dockerfile path."),
+        ] = "Dockerfile",
+        base_image: Annotated[
+            str,
+            typer.Option("--base-image", help="Base Docker image."),
+        ] = "python:3.13-slim",
+        package_name: Annotated[
+            str,
+            typer.Option("--package", help="Package to install."),
+        ] = "mcpstack",
+    ) -> None:
+        """Generate a Dockerfile for the MCPStack pipeline."""
+        console.print("[bold green]💬 Generating Dockerfile...[/bold green]")
+        
+        try:
+            # Build the stack from pipeline or presets
+            stack = self._build_stack_from_options(pipeline, presets)
+            
+            # Generate Dockerfile
+            DockerfileGenerator.save(
+                stack=stack,
+                path=Path(output),
+                base_image=base_image,
+                package_name=package_name,
+            )
+            
+            console.print(f"[bold green]✅ Dockerfile generated: {output}[/bold green]")
+            
+        except Exception as e:
+            logger.error(f"Failed to generate Dockerfile: {e}", exc_info=True)
+            console.print(f"[red]❌ Error: {e}[/red]")
+            raise typer.Exit(code=1) from e
+
+    def docker_build(
+        self,
+        pipeline: Annotated[
+            Optional[str],
+            typer.Option("--pipeline", help="Path to pipeline JSON file."),
+        ] = None,
+        presets: Annotated[
+            Optional[str],
+            typer.Option("--presets", help="Comma-separated preset names."),
+        ] = None,
+        dockerfile: Annotated[
+            str,
+            typer.Option("--dockerfile", help="Path to Dockerfile."),
+        ] = "Dockerfile",
+        image_name: Annotated[
+            str,
+            typer.Option("--image", help="Docker image name and tag."),
+        ] = "mcpstack:latest",
+        context: Annotated[
+            Optional[str],
+            typer.Option("--context", help="Build context directory."),
+        ] = None,
+        no_cache: Annotated[
+            bool,
+            typer.Option("--no-cache", help="Disable Docker build cache."),
+        ] = False,
+    ) -> None:
+        """Build a Docker image from the MCPStack pipeline."""
+        console.print(f"[bold green]💬 Building Docker image: {image_name}...[/bold green]")
+        
+        try:
+            # Ensure Dockerfile exists or generate it
+            dockerfile_path = Path(dockerfile)
+            if not dockerfile_path.exists():
+                console.print("[yellow]⚠️  Dockerfile not found, generating...[/yellow]")
+                stack = self._build_stack_from_options(pipeline, presets)
+                DockerfileGenerator.save(
+                    stack=stack,
+                    path=dockerfile_path,
+                    package_name="mcpstack",
+                )
+            
+            # Build Docker image
+            result = DockerBuilder.build(
+                dockerfile_path=dockerfile_path,
+                image_name=image_name,
+                context_path=context,
+                no_cache=no_cache,
+            )
+            
+            if result["success"]:
+                console.print(f"[bold green]✅ Docker image built: {image_name}[/bold green]")
+            else:
+                console.print(f"[red]❌ Build failed: {result.get('stderr', 'Unknown error')}[/red]")
+                raise typer.Exit(code=1)
+                
+        except Exception as e:
+            logger.error(f"Failed to build Docker image: {e}", exc_info=True)
+            console.print(f"[red]❌ Error: {e}[/red]")
+            raise typer.Exit(code=1) from e
+
+    def docker_config(
+        self,
+        pipeline: Annotated[
+            Optional[str],
+            typer.Option("--pipeline", help="Path to pipeline JSON file."),
+        ] = None,
+        presets: Annotated[
+            Optional[str],
+            typer.Option("--presets", help="Comma-separated preset names."),
+        ] = None,
+        image_name: Annotated[
+            str,
+            typer.Option("--image", help="Docker image name and tag."),
+        ] = "mcpstack:latest",
+        server_name: Annotated[
+            str,
+            typer.Option("--server-name", help="MCP server name in Claude config."),
+        ] = "mcpstack",
+        save_path: Annotated[
+            Optional[str],
+            typer.Option("--save-path", help="Custom save path for config."),
+        ] = None,
+        volumes: Annotated[
+            Optional[str],
+            typer.Option("--volumes", help="Comma-separated volume mounts."),
+        ] = None,
+        ports: Annotated[
+            Optional[str],
+            typer.Option("--ports", help="Comma-separated port mappings."),
+        ] = None,
+        network: Annotated[
+            Optional[str],
+            typer.Option("--network", help="Docker network name."),
+        ] = None,
+    ) -> None:
+        """Generate Claude Desktop configuration for Docker deployment."""
+        console.print("[bold green]💬 Generating Docker configuration for Claude Desktop...[/bold green]")
+        
+        try:
+            # Build the stack from pipeline or presets
+            stack = self._build_stack_from_options(pipeline, presets)
+            
+            # Parse volumes and ports
+            volume_list = volumes.split(",") if volumes else None
+            port_list = ports.split(",") if ports else None
+            
+            # Generate Docker configuration
+            DockerConfigGenerator.save(
+                stack=stack,
+                image_name=image_name,
+                server_name=server_name,
+                save_path=save_path,
+                volumes=volume_list,
+                ports=port_list,
+                network=network,
+            )
+            
+            if save_path:
+                console.print(f"[bold green]✅ Docker config saved: {save_path}[/bold green]")
+            else:
+                console.print("[bold green]✅ Docker config merged into Claude Desktop config[/bold green]")
+                
+        except Exception as e:
+            logger.error(f"Failed to generate Docker config: {e}", exc_info=True)
+            console.print(f"[red]❌ Error: {e}[/red]")
+            raise typer.Exit(code=1) from e
+
+    def _build_stack_from_options(
+        self, 
+        pipeline: Optional[str], 
+        presets: Optional[str]
+    ) -> MCPStackCore:
+        """Build a stack from pipeline file or presets."""
+        if pipeline:
+            if not Path(pipeline).exists():
+                raise FileNotFoundError(f"Pipeline file not found: {pipeline}")
+            return MCPStackCore.load(pipeline)
+        elif presets:
+            preset_names = [p.strip() for p in presets.split(",")]
+            stack = MCPStackCore()
+            for preset_name in preset_names:
+                stack = stack.with_preset(preset_name)
+            return stack
+        else:
+            # Return empty stack - user can add tools via pipeline command
+            return MCPStackCore()
 
     @staticmethod
     def _display_banner() -> None:

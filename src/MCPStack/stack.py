@@ -181,6 +181,7 @@ class MCPStackCore:
         module_name: Optional[str] = None,
         pipeline_config_path: Optional[str] = None,
         save_path: Optional[str] = None,
+        **kwargs: Any,
     ) -> Union[dict, str]:
         """Validate, initialize, and register all tools; generate a config.
 
@@ -226,6 +227,7 @@ class MCPStackCore:
             module_name=module_name,
             pipeline_config_path=pipeline_config_path,
             save_path=save_path,
+            **kwargs,
         )
 
     def run(self) -> None:
