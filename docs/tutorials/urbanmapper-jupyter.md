@@ -6,6 +6,11 @@ This tutorial shows how to **stack two MCPs**:
 - **Urban Mapper** (urban computing analysis utilising the Urban Mapper official library)
 - **Jupyter** (reproducible notebook analysis)
 
+About Urban Mapper:
+
+* Urban Mapper official repository: https://github.com/VIDA-NYU/UrbanMapper
+* Urban Mapper documentation: https://urbanmapper.readthedocs.io/en/latest/
+
 You’ll learn how to:
 
 1. Build a pipeline with both tools
