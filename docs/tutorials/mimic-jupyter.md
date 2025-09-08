@@ -20,6 +20,20 @@ You’ll learn how to:
 
 ---
 
+## Prerequisites
+
+```bash
+# If you prefer other Python package managers, feel free to adapt `pip install X`.
+
+uv init --python 3.10
+uv add mcpstack
+uv add mcpstack-jupyter
+uv add mcpstack-mimic
+
+# To see if the tools are all connected
+uv run mcpstack list-tools
+```
+
 ## 🔧 Step 1 — Build with Pipeline W/ MIMIC Default
 
 MIMIC Default is basically using the default MIMIC-IV demo database.
@@ -43,7 +57,7 @@ uv run mcpstack tools jupyter configure \
 ## 🔧 Step 3 — Add To The Tool To The Pipeline
 
 ```bash
-uv run mcpstack pipeline mimic --to-pipeline my_pipeline.json --tool-config jupyter_config.json
+uv run mcpstack pipeline jupyter --to-pipeline my_pipeline.json --tool-config jupyter_config.json
 ```
 
 ## 🔧 Step 4 — Compose & Run the Pipeline On Claude Desktop
