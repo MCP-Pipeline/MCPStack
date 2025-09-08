@@ -50,7 +50,17 @@ Here you’ll find guided, hands-on walkthroughs showing how to build, run, and 
 
     NEW! A walkthrough of stacking the **MIMIC MCP** with the **Jupyter MCP**
 
-    [:octicons-arrow-right-24: Watch & Learn](mimic-jupyter.md)
+    [:octicons-arrow-right-24: Watch & Reproduce](mimic-jupyter.md)
+
+-   :material-table:{ .lg .middle } __UrbanMapper + Jupyter Pipeline__
+    {: data-tutorials-card data-filter="Geospatial Reproducible Analysis using UrbanMapper & Jupyter"}
+
+    ---
+
+    NEW! A walkthrough of stacking the **UrbanMapper MCP** with the **Jupyter MCP**
+
+    [:octicons-arrow-right-24: Watch & Reproduce](urbanmapper-jupyter.md)
+
 
 </div>
 
