@@ -57,6 +57,16 @@ your_tool_name = "mcpstack_your_tool_name.tool:YourTool"
 
     [:octicons-arrow-right-24: View Repository](https://github.com/MCP-Pipeline/mcpstack-jupyter)
 
+
+-   :material-table:{ .lg .middle } __UrbanMapper__
+    {: data-marketplace-card data-filter="Geospatial Reproducible Analysis using UrbanMapper & Jupyter"}
+
+    ---
+
+    MCPStack UrbanMapper is a MCP tool that allows to perform geospatial analysis using the UrbanMapper library.
+
+    [:octicons-arrow-right-24: View Repository](https://github.com/MCP-Pipeline/mcpstack-urbanmapper)
+
 </div>
 
 !!! tip
