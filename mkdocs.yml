@@ -167,6 +167,7 @@ nav:
       - Writing your first Tool: tutorials/first-tool.md
       - Creating a Preset: tutorials/first-preset.md
       - MIMIC + Jupyter Pipeline: tutorials/mimic-jupyter.md
+      - Urban Mapper + Jupyter Pipeline: tutorials/urbanmapper-jupyter.md
   - API Reference:
       - MCPStack Core:
           - MCPStackCore: API/mcpstackcore.md

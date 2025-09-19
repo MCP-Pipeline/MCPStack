@@ -2,27 +2,27 @@
     including icons, fonts, colors, etc
     */
 /*
-.document-dates-plugin {
+.md-main .document-dates-plugin {
     color: rgba(109, 157, 204, 0.7);
     font-size: 0.75rem;
 }
-.document-dates-plugin .material-icons {
+.md-main .document-dates-plugin .material-icons {
     font-size: 0.9rem;
 } */
 
 /* Customized icons, just change the icon name.
     Google Fonts Icons (2500+): https://fonts.google.com/icons
 
-    add_circle: add_circle, add_circle, note_add, more_time
-    update:     update, check_circle, task, refresh
-    person:     person, account_circle
-    group:      group, groups */
+    doc_created:  add_circle, add_circle, note_add, more_time
+    doc_modified: update, check_circle, task, refresh
+    doc_author:   person, account_circle
+    doc_authors:  group, groups */
 /*
 .document-dates-plugin .material-icons[data-icon="doc_created"]::before {
-    content: "add_circle";
+    content: "more_time";
 }
 .document-dates-plugin .material-icons[data-icon="doc_modified"]::before {
-    content: "update";
+    content: "refresh";
 }
 .document-dates-plugin .material-icons[data-icon="doc_author"]::before {
     content: "person";
@@ -34,12 +34,11 @@
 
 
 /* 2. Plug-in wrapper styles
-    including divider, margin, padding, etc
+    including divider line, margin, padding, and the hiding of this plugin, etc
     */
+/* Remove the divider line: */
 /*
-.document-dates-plugin-wrapper.document-dates-top {
-    border-bottom: 1px solid rgba(142, 142, 142, 0.15);
-}
+.document-dates-plugin-wrapper.document-dates-top,
 .document-dates-plugin-wrapper.document-dates-bottom {
     border-bottom: none;
 } */
@@ -66,4 +65,18 @@
 }
 .tippy-box[data-theme~='sublime'] > .tippy-arrow::before {
     color: #474747;
+} */
+
+
+
+/* 4. Author Avatar styles
+    e.g. shape, hover scale, grayscale mode
+    */
+/*
+.avatar-wrapper {
+    border-radius: 4px;
+    filter: grayscale(0%);
+}
+.avatar-wrapper:hover {
+    transform: scale(1.08);
 } */

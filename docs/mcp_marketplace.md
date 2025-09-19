@@ -67,6 +67,16 @@ your_tool_name = "mcpstack_your_tool_name.tool:YourTool"
 
     [:octicons-arrow-right-24: View Repository](https://github.com/MCP-Pipeline/mcpstack-urbanmapper)
 
+-   :material-table:{ .lg .middle } __AutoDDG__
+    {: data-marketplace-card data-filter="AutoDDG: Automated Dataset Description Generation with LLMs"}
+
+    ---
+
+    MCPStack AutoDDG is a MCP tool that allows to generate dataset descriptions using LLMs, from LLMs.
+
+    [:octicons-arrow-right-24: View Repository](https://github.com/MCP-Pipeline/mcpstack-autoddg)
+
+
 </div>
 
 !!! tip
