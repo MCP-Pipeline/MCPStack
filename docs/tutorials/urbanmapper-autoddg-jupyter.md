@@ -121,17 +121,17 @@ Attaching a bit more documentation about enrichers.
 
 ### Follow-up Prompt – Optional
 ````text
-nunique is not available, and mean on categorical -based feature will most probably crash. 
+nunique is not available, and mean on categorical -based feature will most probably crash.
 You have to pass a custom lambda method function to deal with all that, very easy straightforward custom lambda functions.
 ````
 
 ### Follow-up Prompt
 ````text
-Let's build the pipeline with the FULL data, all those very interesting stacked enrichers 
+Let's build the pipeline with the FULL data, all those very interesting stacked enrichers
 (
-not need to create multiple time the pipeline, stack the enrichers, 
-and then straight after building, .preview(.), .composed_transform(.) 
-(by the way, no. need to grave the output of this function for the time being), 
+not need to create multiple time the pipeline, stack the enrichers,
+and then straight after building, .preview(.), .composed_transform(.)
+(by the way, no. need to grave the output of this function for the time being),
 and most importantly, follow by nothing else than of : .visualise([<with the name of all of our output column created>]
 ).
 

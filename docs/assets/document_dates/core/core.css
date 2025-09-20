@@ -89,7 +89,7 @@
 .tippy-box[data-theme~='tomato'] > .tippy-arrow::before {
     color: tomato;
 }
-/* 
+/*
 Recommended Colors:
     tomato: rgb(241, 112, 91);
     mung_bean: rgb(122, 145, 109);
