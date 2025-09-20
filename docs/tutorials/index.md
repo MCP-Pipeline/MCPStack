@@ -61,6 +61,16 @@ Here you’ll find guided, hands-on walkthroughs showing how to build, run, and 
 
     [:octicons-arrow-right-24: Watch & Reproduce](urbanmapper-jupyter.md)
 
+-  :material-table:{ .lg .middle } __UrbanMapper + AutoDDG + Jupyter Pipeline__
+    {: data-tutorials-card data-filter="Geospatial Reproducible Analysis using UrbanMapper, AutoDDG & Jupyter"}
+
+    ---
+
+    NEW! A walkthrough of stacking the **UrbanMapper MCP**, **AutoDDG MCP** with the **Jupyter MCP**.
+    Let the LLM gather context out of a dataset to build reliable Urban Mapper's analysis.
+
+    [:octicons-arrow-right-24: Watch & Reproduce](urbanmapper-autoddg-jupyter.md)
+
 
 </div>
 

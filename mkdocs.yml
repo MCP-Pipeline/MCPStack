@@ -168,6 +168,7 @@ nav:
       - Creating a Preset: tutorials/first-preset.md
       - MIMIC + Jupyter Pipeline: tutorials/mimic-jupyter.md
       - Urban Mapper + Jupyter Pipeline: tutorials/urbanmapper-jupyter.md
+      - Urban Mapper + AutoDDG + Jupyter Pipeline: tutorials/urbanmapper-autoddg-jupyter.md
   - API Reference:
       - MCPStack Core:
           - MCPStackCore: API/mcpstackcore.md

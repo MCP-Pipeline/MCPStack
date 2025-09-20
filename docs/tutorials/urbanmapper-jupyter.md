@@ -10,6 +10,7 @@ About Urban Mapper:
 
 * Urban Mapper official repository: https://github.com/VIDA-NYU/UrbanMapper
 * Urban Mapper documentation: https://urbanmapper.readthedocs.io/en/latest/
+* Urban Mapper MCP: https://github.com/MCP-Pipeline/mcpstack-urbanmapper
 
 You’ll learn how to:
 
