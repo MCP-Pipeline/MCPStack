@@ -7,7 +7,8 @@ from unittest.mock import patch
 import pytest
 
 from MCPStack.core.config import StackConfig
-from MCPStack.core.docker import DockerBuilder, DockerConfigGenerator, DockerfileGenerator
+from MCPStack.core.docker import DockerBuilder, DockerfileGenerator
+from MCPStack.core.mcp_config_generator.mcp_config_generators.docker_mcp_config import DockerMCPConfigGenerator
 from MCPStack.stack import MCPStackCore
 
 
@@ -45,7 +46,7 @@ class TestDockerIntegration:
             
             # Step 2: Generate Claude Desktop config
             claude_config_path = tmpdir_path / "claude_desktop_config.json"
-            DockerConfigGenerator.save(
+            DockerMCPConfigGenerator.generate(
                 stack=stack,
                 image_name="mcpstack:test",
                 server_name="test_server",
@@ -146,7 +147,7 @@ class TestDockerIntegration:
             
             # Generate Claude Desktop config (equivalent to editing claude_desktop_config.json)
             claude_config_path = tmpdir_path / "claude_desktop_config.json"
-            DockerConfigGenerator.save(
+            DockerMCPConfigGenerator.generate(
                 stack=stack,
                 image_name="mcpstack:latest",  # equivalent to biomcp:latest
                 server_name="mcpstack",

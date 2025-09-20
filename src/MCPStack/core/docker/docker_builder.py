@@ -78,9 +78,11 @@ class DockerBuilder:
                 capture_output=True,
                 text=True,
                 check=True,
+                encoding='utf-8',
+                errors='replace',  # Replace problematic characters instead of failing
             )
             
-            logger.info(f"✅ Successfully built Docker image: {image_name}")
+            logger.info(f"Successfully built Docker image: {image_name}")
             
             return {
                 "success": True,
@@ -140,7 +142,7 @@ class DockerBuilder:
                 check=True,
             )
             
-            logger.info(f"✅ Successfully pushed Docker image: {full_image_name}")
+            logger.info(f"Successfully pushed Docker image: {full_image_name}")
             
             return {
                 "success": True,
@@ -151,9 +153,9 @@ class DockerBuilder:
             }
             
         except subprocess.CalledProcessError as e:
-            logger.error(f"Docker push failed: {e}")
+            logger.warning(f"Docker push failed: {e}")
             raise MCPStackValidationError(
-                f"Docker push failed with exit code {e.returncode}: {e.stderr}"
+                f"Docker push failed with exit code {e.returncode}: {e.stderr or 'Unknown error'}"
             )
         
         except FileNotFoundError:
@@ -191,7 +193,7 @@ class DockerBuilder:
                 check=True,
             )
             
-            logger.info(f"✅ Successfully tagged image: {source_image} -> {target_image}")
+            logger.info(f"Successfully tagged image: {source_image} -> {target_image}")
             
             return {
                 "success": True,

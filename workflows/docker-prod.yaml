@@ -1,0 +1,43 @@
+# Example production Docker workflow profile
+# Copy this file and customize it for your project needs
+# Usage: mcpstack build --presets your-preset --config-type docker --profile docker-prod
+
+name: docker-prod
+description: "Production Docker workflow - full CI/CD pipeline (config, build, tag, push)"
+
+config_type: docker
+
+# Complete production deployment workflow
+stages:
+  - config.generate
+
+  - dockerfile.generate:
+      # Specify production-optimized dockerfile
+      path: Dockerfile.prod
+
+  # Build with production tags
+  - image.build:
+      image: "${preset}:${GIT_COMMIT}"
+      # Pass all environment variables as build args
+      build_args:
+        BUILDKIT_INLINE_CACHE: 1
+        DOCKER_BUILDKIT: 1
+
+  # Tag additional versions
+  - image.tag:
+      source: "${preset}:${GIT_COMMIT}"
+      targets:
+        - "${preset}:latest"
+        - "${preset}:${GIT_BRANCH}"
+
+  # Push all tags to registry
+  - image.push:
+      image: "${preset}:${GIT_COMMIT}"
+      registry: "${REGISTRY_URL}"
+      tags: ["${GIT_COMMIT}", "latest", "${GIT_BRANCH}"]
+
+# Production requirements (stricter validation)
+requires:
+  - docker_client
+  - registry_auth
+  - git_available    # For commit/branch info

@@ -158,6 +158,87 @@ You can also run your pipeline with FastMCP, allowing you to connect to various 
 
 <br />
 
+### `Docker Containerization` 🐳
+
+Build and deploy your MCP pipelines as Docker containers for production environments.
+
+#### Prerequisites
+- **MCPStack**: `uv add mcpstack` or `pip install mcpstack`
+- **Available Presets**: Check with `mcpstack list-presets` (assumes `example_preset` exists)
+- **For full testing**: [Claude Desktop](https://claude.ai/desktop) for MCP server usage
+- **For building images**: Docker CLI installed and available
+
+#### Quick Start Commands
+
+**Basic Config (Fastest setup)** ⭐ *Recommended for first-time users*
+```bash
+# Generate Docker config only - creates claude_desktop_config.json
+mcpstack build --config-type docker --presets example_preset
+```
+*Outputs:* `claude_desktop_config.json` for MCP host configuration
+
+**Development Workflow** 🛠️ *Recommended for local development*
+```bash
+# Generate config, dockerfile, and build image locally
+mcpstack build --config-type docker --presets example_preset --profile build-only
+```
+*Outputs:* `claude_desktop_config.json` + `Dockerfile` + built image for local testing
+
+**Production Pipeline** 🚀 *Recommended for deployment*
+```bash
+# Complete workflow: generate, build, and push container image
+mcpstack build --config-type docker --presets example_preset --profile build-and-push
+```
+*Outputs:* Complete CI/CD pipeline with config, dockerfile, built & pushed container image
+
+#### Verification Steps
+```bash
+# Check available profiles
+mcpstack list-profiles --config-type docker
+
+# After running any command, verify outputs:
+ls -la claude_desktop_config.json Dockerfile  # Check generated files
+docker images | grep mcpstack                    # Check built images
+cat claude_desktop_config.json                  # Config for Claude Desktop
+```
+
+Perfect for deploying MCP tools to Kubernetes, Docker Swarm, or any container orchestration system.
+
+<br />
+
+### `Workflow Profiles` ⚙️
+
+Define and run complex multi-stage workflows beyond basic config generation using workflow profiles.
+
+#### Discover Available Profiles
+```bash
+# List all profiles
+mcpstack list-profiles
+
+# List profiles for specific config type
+mcpstack list-profiles --config-type docker
+```
+
+#### Use Built-in Profiles
+```bash
+# Docker build and push workflow
+mcpstack build --config-type docker --presets example_preset --profile build-and-push
+
+# Docker build-only workflow (local development)
+mcpstack build --config-type docker --presets example_preset --profile build-only
+```
+
+#### Custom Profile Examples
+Check the `workflows/` directory for YAML examples:
+- `docker-dev.yaml` - Development workflow with custom Dockerfile
+- `docker-prod.yaml` - Production CI/CD pipeline with tagging and registry push
+
+Profiles support environment variables like `${GIT_COMMIT}`, `${GIT_BRANCH}`, and `${preset}` for dynamic naming.
+
+Perfect for implementing complex deployment pipelines while maintaining MCPStack's clean architecture.
+
+<br />
+
 <img src="assets/readme/more.gif" width="61.8%" align="left" style="border-radius: 10px;"/>
 
 ### `Many Other CLIs Options`

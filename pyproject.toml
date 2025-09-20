@@ -43,7 +43,7 @@ dependencies = [
 # Keep the core lightweight; tool-specific deps live here or in their own projects.
 devtools = [
     "appdirs>=1.4.0",
-    "pyaml>=25.7.0",
+    "PyYAML>=6.0.0",
 ]
 
 [dependency-groups]

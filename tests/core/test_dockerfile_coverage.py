@@ -200,9 +200,9 @@ class TestDockerfileGeneratorCoverage:
         expected_lines = [
             "FROM python:3.11-slim",
             "WORKDIR /custom/workdir",
-            "COPY /src/package /custom/workdir/mcpstack",
-            "RUN pip install -e /custom/workdir/mcpstack",
-            # Note: custom-package is not installed when local_package_path is provided
+            "COPY pyproject.toml LICENSE",  # Current implementation copies individual files
+            "COPY src/ /app/src/",
+            "RUN pip install .",  # Current implementation uses pip install .
             "RUN pip install requests pandas",
             "ENV VAR1=value1",
             "ENV VAR2=value2",

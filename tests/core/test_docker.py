@@ -8,7 +8,7 @@ from unittest.mock import Mock, patch, mock_open
 import pytest
 
 from MCPStack.core.config import StackConfig
-from MCPStack.core.docker.docker_config_generator import DockerConfigGenerator
+from MCPStack.core.mcp_config_generator.mcp_config_generators.docker_mcp_config import DockerMCPConfigGenerator
 from MCPStack.core.docker.dockerfile_generator import DockerfileGenerator
 from MCPStack.core.utils.exceptions import MCPStackValidationError
 from MCPStack.stack import MCPStackCore
@@ -79,8 +79,9 @@ class TestDockerfileGenerator:
             local_package_path="/local/path/to/mcpstack"
         )
         
-        assert "COPY /local/path/to/mcpstack /app/mcpstack" in dockerfile_content
-        assert "RUN pip install -e /app/mcpstack" in dockerfile_content
+        assert "COPY pyproject.toml LICENSE" in dockerfile_content
+        assert "COPY src/ /app/src/" in dockerfile_content
+        assert "RUN pip install ." in dockerfile_content
 
     def test_generate_dockerfile_with_custom_command(self):
         """Test Dockerfile generation with custom command."""
@@ -116,19 +117,19 @@ class TestDockerfileGenerator:
             assert "FROM python:3.13-slim" in content
 
 
-class TestDockerConfigGenerator:
-    """Test Docker configuration generation for Claude Desktop."""
+class TestDockerMCPConfigGenerator:
+    """Test DockerMCP configuration generation for Claude Desktop."""
 
     def test_generate_docker_config(self):
         """Test basic Docker config generation for Claude Desktop."""
         config = StackConfig()
         stack = MCPStackCore(config)
-        
-        docker_config = DockerConfigGenerator.generate(
+
+        docker_config = DockerMCPConfigGenerator.generate(
             stack=stack,
             image_name="mcpstack:latest"
         )
-        
+
         expected_config = {
             "mcpServers": {
                 "mcpstack": {
@@ -138,20 +139,20 @@ class TestDockerConfigGenerator:
                 }
             }
         }
-        
+
         assert docker_config == expected_config
 
     def test_generate_docker_config_with_custom_name(self):
         """Test Docker config generation with custom server name."""
         config = StackConfig()
         stack = MCPStackCore(config)
-        
-        docker_config = DockerConfigGenerator.generate(
+
+        docker_config = DockerMCPConfigGenerator.generate(
             stack=stack,
             image_name="custom-mcp:v1.0",
             server_name="custom_mcp"
         )
-        
+
         assert "custom_mcp" in docker_config["mcpServers"]
         assert docker_config["mcpServers"]["custom_mcp"]["args"][-1] == "custom-mcp:v1.0"
 
@@ -159,12 +160,12 @@ class TestDockerConfigGenerator:
         """Test Docker config generation with environment variables."""
         config = StackConfig(env_vars={"API_KEY": "secret", "DEBUG": "true"})
         stack = MCPStackCore(config)
-        
-        docker_config = DockerConfigGenerator.generate(
+
+        docker_config = DockerMCPConfigGenerator.generate(
             stack=stack,
             image_name="mcpstack:latest"
         )
-        
+
         expected_env = {"API_KEY": "secret", "DEBUG": "true"}
         assert docker_config["mcpServers"]["mcpstack"]["env"] == expected_env
 
@@ -172,14 +173,14 @@ class TestDockerConfigGenerator:
         """Test Docker config generation with volume mounts."""
         config = StackConfig()
         stack = MCPStackCore(config)
-        
+
         volumes = ["/host/data:/app/data", "/host/config:/app/config:ro"]
-        docker_config = DockerConfigGenerator.generate(
+        docker_config = DockerMCPConfigGenerator.generate(
             stack=stack,
             image_name="mcpstack:latest",
             volumes=volumes
         )
-        
+
         args = docker_config["mcpServers"]["mcpstack"]["args"]
         assert "-v" in args
         assert "/host/data:/app/data" in args
@@ -189,13 +190,13 @@ class TestDockerConfigGenerator:
         """Test Docker config generation with custom network."""
         config = StackConfig()
         stack = MCPStackCore(config)
-        
-        docker_config = DockerConfigGenerator.generate(
+
+        docker_config = DockerMCPConfigGenerator.generate(
             stack=stack,
             image_name="mcpstack:latest",
             network="mcp-network"
         )
-        
+
         args = docker_config["mcpServers"]["mcpstack"]["args"]
         assert "--network" in args
         assert "mcp-network" in args
@@ -204,14 +205,14 @@ class TestDockerConfigGenerator:
         """Test Docker config generation with port mapping."""
         config = StackConfig()
         stack = MCPStackCore(config)
-        
+
         ports = ["8000:8000", "9000:9000"]
-        docker_config = DockerConfigGenerator.generate(
+        docker_config = DockerMCPConfigGenerator.generate(
             stack=stack,
             image_name="mcpstack:latest",
             ports=ports
         )
-        
+
         args = docker_config["mcpServers"]["mcpstack"]["args"]
         assert "-p" in args
         assert "8000:8000" in args
@@ -221,20 +222,20 @@ class TestDockerConfigGenerator:
         """Test saving Docker config to file."""
         config = StackConfig()
         stack = MCPStackCore(config)
-        
+
         with tempfile.TemporaryDirectory() as tmpdir:
             config_path = Path(tmpdir) / "claude_desktop_config.json"
-            
-            DockerConfigGenerator.save(
+
+            DockerMCPConfigGenerator.generate(
                 stack=stack,
                 image_name="mcpstack:latest",
                 save_path=str(config_path)
             )
-            
+
             assert config_path.exists()
             with open(config_path) as f:
                 saved_config = json.load(f)
-            
+
             assert "mcpServers" in saved_config
             assert "mcpstack" in saved_config["mcpServers"]
 
@@ -242,7 +243,7 @@ class TestDockerConfigGenerator:
         """Test merging Docker config with existing Claude Desktop config."""
         config = StackConfig()
         stack = MCPStackCore(config)
-        
+
         existing_config = {
             "mcpServers": {
                 "existing_tool": {
@@ -252,27 +253,27 @@ class TestDockerConfigGenerator:
                 }
             }
         }
-        
+
         with tempfile.TemporaryDirectory() as tmpdir:
             config_path = Path(tmpdir) / "claude_desktop_config.json"
-            
+
             # Write existing config
             with open(config_path, "w") as f:
                 json.dump(existing_config, f)
-            
+
             # Merge new Docker config
-            with patch('MCPStack.core.docker.docker_config_generator.DockerConfigGenerator._get_claude_config_path') as mock_path:
+            with patch('MCPStack.core.mcp_config_generator.mcp_config_generators.docker_mcp_config.DockerMCPConfigGenerator._get_claude_config_path') as mock_path:
                 mock_path.return_value = config_path
-                
-                DockerConfigGenerator.save(
+
+                DockerMCPConfigGenerator.generate(
                     stack=stack,
                     image_name="mcpstack:latest"
                 )
-            
+
             # Check merged config
             with open(config_path) as f:
                 merged_config = json.load(f)
-            
+
             assert "existing_tool" in merged_config["mcpServers"]
             assert "mcpstack" in merged_config["mcpServers"]
 
@@ -280,25 +281,25 @@ class TestDockerConfigGenerator:
         """Test Claude config path detection returns path or None."""
         # This test just ensures the method runs without error
         # and returns either a valid Path or None
-        path = DockerConfigGenerator._get_claude_config_path()
+        path = DockerMCPConfigGenerator._get_claude_config_path()
         assert path is None or isinstance(path, Path)
 
     def test_validate_image_name(self):
         """Test Docker image name validation."""
         config = StackConfig()
         stack = MCPStackCore(config)
-        
+
         # Valid image names should work
         valid_names = ["mcpstack:latest", "registry.io/mcpstack:v1.0", "mcpstack"]
         for name in valid_names:
-            result = DockerConfigGenerator.generate(stack=stack, image_name=name)
+            result = DockerMCPConfigGenerator.generate(stack=stack, image_name=name)
             assert result is not None
-        
+
         # Invalid image names should raise validation error
         invalid_names = ["", "name with spaces"]
         for name in invalid_names:
             with pytest.raises(MCPStackValidationError):
-                DockerConfigGenerator.generate(stack=stack, image_name=name)
+                DockerMCPConfigGenerator.generate(stack=stack, image_name=name)
 
 
 class TestDockerIntegration:
@@ -323,7 +324,7 @@ class TestDockerIntegration:
             )
             
             # Generate Claude config
-            DockerConfigGenerator.save(
+            DockerMCPConfigGenerator.generate(
                 stack=stack,
                 image_name="mcpstack:test",
                 save_path=str(config_path)

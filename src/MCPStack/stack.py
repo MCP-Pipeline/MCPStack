@@ -297,7 +297,7 @@ class MCPStackCore:
         }
         with open(path, "w") as f:
             json.dump(data, f, indent=4)
-        logger.info(f"✅ Saved pipeline config to {path}.")
+        logger.info(f"Saved pipeline config to {path}.")
 
     @classmethod
     def load(cls, path: str) -> "MCPStackCore":
