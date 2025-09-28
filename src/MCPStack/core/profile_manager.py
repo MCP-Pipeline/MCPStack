@@ -71,7 +71,7 @@ class ProfileManager:
         for name in profile_names:
             profile_def = self.registry.get_profile(name)
             if profile_def:
-                # Determine source (built-in vs external)
+
                 source = "built-in" if name in ["build-only", "build-and-push"] else "external"
                 
                 profile_info = ProfileInfo(
@@ -96,15 +96,13 @@ class ProfileManager:
             ValidationResult with validation status and any errors
         """
         result = ValidationResult(is_valid=True)
-        
-        # Check if profile exists
+
         profile = self.registry.get_profile(profile_name)
         if not profile:
             result.is_valid = False
             result.errors.append(f"Profile '{profile_name}' not found")
             return result
-        
-        # Validate requirements
+
         missing_reqs = []
         for requirement in profile.requires:
             if requirement == "docker_client":
@@ -117,12 +115,11 @@ class ProfileManager:
         if missing_reqs:
             result.missing_requirements = missing_reqs
             result.warnings.append("Some requirements are not met but profile can still be validated")
-        
-        # Validate stages
+
         for stage in profile.stages:
             try:
                 stage_name, stage_params = self.orchestrator._parse_stage_config(stage)
-                # Basic validation of stage format
+
                 if "." in stage_name:
                     component, operation = stage_name.split(".", 1)
                     if component not in ["config", "dockerfile", "image"]:
@@ -144,16 +141,14 @@ class ProfileManager:
         Returns:
             ExecutionResult with execution status and results
         """
-        # Validate profile first
+
         validation = self.validate_profile(profile_name)
         if not validation.is_valid:
             raise ValueError(f"Profile validation failed: {'; '.join(validation.errors)}")
-        
-        # Warn about missing requirements but allow execution
+
         if validation.missing_requirements:
             logger.warning(f"Missing requirements for profile '{profile_name}': {', '.join(validation.missing_requirements)}")
-        
-        # Execute the workflow
+
         try:
             return self.orchestrator.execute_workflow(profile_name, stack_context, **kwargs)
         except Exception as e:
@@ -173,8 +168,7 @@ class ProfileManager:
         available_profiles = self.registry.list_profiles()
         if not available_profiles:
             return []
-        
-        # Use fuzzy matching to find similar profiles
+
         matches = process.extract(query, available_profiles, limit=limit)
         return [match[0] for match in matches if match[1] > 60]  # Only return matches with >60% similarity
 
@@ -190,11 +184,9 @@ class ProfileManager:
         profile_def = self.registry.get_profile(name)
         if not profile_def:
             return None
-        
-        # Determine source
+
         source = "built-in" if name in ["build-only", "build-and-push"] else "external"
-        
-        # Validate the profile
+
         validation = self.validate_profile(name)
         
         return ProfileInfo(

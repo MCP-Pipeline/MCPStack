@@ -40,7 +40,7 @@ class WorkflowRegistry:
 
     def _load_builtin_profiles(self) -> None:
         """Load built-in workflow profiles."""
-        # Docker profiles
+
         self._profiles["build-and-push"] = ProfileDefinition(
             name="build-and-push",
             description="Generate config, dockerfile, build image, and push",
@@ -62,7 +62,7 @@ class WorkflowRegistry:
     def _discover_external_profiles(self) -> None:
         """Discover external workflow profiles from configuration files."""
         try:
-            # Look for workflows directory in current working directory
+
             workflows_dir = Path.cwd() / "workflows"
             if workflows_dir.exists():
                 for yaml_file in workflows_dir.glob("*.yaml"):
@@ -121,7 +121,6 @@ class ProfileOrchestrator:
         if not profile:
             raise ValueError(f"Workflow profile '{profile_name}' not found")
 
-        # Validate requirements before execution
         self._validate_requirements(profile)
 
         results = {}
@@ -130,8 +129,7 @@ class ProfileOrchestrator:
         try:
             for stage_config in profile.stages:
                 stage_name, stage_params = self._parse_stage_config(stage_config)
-                
-                # Merge workflow context with stage params and kwargs
+
                 merged_kwargs = {**kwargs, **workflow_context, **stage_params}
                 
                 if "." in stage_name:
@@ -141,10 +139,9 @@ class ProfileOrchestrator:
                     result = self._execute_builtin_stage(stage_name, stack_context, stage_params, **merged_kwargs)
 
                 results[stage_name] = result
-                
-                # Update workflow context based on stage results
+
                 if component == "dockerfile" and operation == "generate":
-                    # Track the dockerfile path for subsequent stages
+
                     dockerfile_path = stage_params.get("path") or merged_kwargs.get("path", "Dockerfile")
                     workflow_context["dockerfile_path"] = dockerfile_path
                 
@@ -187,7 +184,7 @@ class ProfileOrchestrator:
             elif requirement == "registry_auth":
                 if not self._check_registry_auth():
                     raise RuntimeError("Docker registry authentication is required")
-            # Add more requirement checks as needed
+
 
     def _check_docker_available(self) -> bool:
         """Check if Docker is available on the system."""
@@ -200,13 +197,12 @@ class ProfileOrchestrator:
 
     def _check_registry_auth(self) -> bool:
         """Check if Docker registry is configured."""
-        # This could check docker config for auth tokens
-        # For now, assume true if docker is available
+
         return self._check_docker_available()
 
     def _execute_stage(self, component: str, operation: str, stack_context: Any, stage_params: dict, **kwargs) -> Any:
         """Execute a specific workflow stage."""
-        # Merge stage parameters with kwargs, stage params take precedence
+
         merged_kwargs = {**kwargs, **stage_params}
         
         if component == "config":
@@ -221,13 +217,30 @@ class ProfileOrchestrator:
     def _execute_config_stage(self, operation: str, stack_context: Any, **kwargs) -> Any:
         """Execute configuration-related stage."""
         if operation == "generate":
-            result = stack_context.build()  # This will generate the config
-            
-            # Save pipeline JSON during config generation so it's available for Docker build
+            build_kwargs = {
+                "type": kwargs.get("config_type", "fastmcp"),
+                "command": kwargs.get("command"),
+                "args": kwargs.get("args"),
+                "cwd": kwargs.get("cwd"),
+                "module_name": kwargs.get("module_name"),
+                "pipeline_config_path": kwargs.get("pipeline_config_path"),
+                "save_path": kwargs.get("save_path"),
+                "build_image": kwargs.get("build_image"),
+                "generate_dockerfile": kwargs.get("generate_dockerfile"),
+                "dockerfile_path": kwargs.get("dockerfile_path"),
+                "docker_push": kwargs.get("docker_push"),
+                "docker_registry_url": kwargs.get("docker_registry_url"),
+                "build_args": kwargs.get("build_args"),
+            }
+
+            build_kwargs = {k: v for k, v in build_kwargs.items() if v is not None}
+
+            result = stack_context.build(**build_kwargs)
+
             pipeline_config_path = kwargs.get("pipeline_config_path", "mcpstack_pipeline.json")
             if pipeline_config_path:
                 stack_context.save(pipeline_config_path)
-            
+
             return result
         else:
             raise ValueError(f"Unknown config operation: {operation}")
@@ -237,17 +250,15 @@ class ProfileOrchestrator:
         from MCPStack.core.docker.dockerfile_generator import DockerfileGenerator
 
         if operation == "generate":
-            # Support both 'path' and 'dockerfile_path' for flexibility
+
             dockerfile_path = kwargs.get("path") or kwargs.get("dockerfile_path") or "Dockerfile"
             base_image = kwargs.get("base") or kwargs.get("base_image", "python:3.13-slim")
             package_name = kwargs.get("package", "mcpstack")
             local_package_path = kwargs.get("local_package_path")
-            
-            # For development: Use local source installation if we're in a development environment
-            # This ensures generated Dockerfiles include container detection fixes
+
             import os
             if local_package_path is None and os.path.exists("src/MCPStack") and os.path.exists("pyproject.toml"):
-                # We're in the MCPStack development directory, use local source
+
                 local_package_path = "."
                 package_name = None  # Don't install from PyPI when using local source
 
@@ -271,8 +282,6 @@ class ProfileOrchestrator:
         build_args = kwargs.get("build_args", {})
         dockerfile_path = kwargs.get("dockerfile_path") or kwargs.get("path", "Dockerfile")
 
-        # Expand environment variables in image name
-        # Create a template with environment variables and preset info
         template_vars = {
             **os.environ,
             'preset': kwargs.get('presets', 'mcpstack').split(',')[0] if kwargs.get('presets') else 'mcpstack'
@@ -300,7 +309,8 @@ class ProfileOrchestrator:
 
     def _execute_builtin_stage(self, stage: str, stack_context: Any, stage_params: dict, **kwargs) -> Any:
         """Execute a built-in workflow stage."""
-        # Handle any custom stages that don't follow component.operation pattern
-        # Merge stage parameters with kwargs
+
         merged_kwargs = {**kwargs, **stage_params}
         raise ValueError(f"Built-in stage '{stage}' not implemented")
+
+

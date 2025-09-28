@@ -15,6 +15,7 @@ from rich.console import Console, Group
 from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
+from rich_pyfiglet import RichFiglet
 from thefuzz import process
 
 from MCPStack.core.config import StackConfig
@@ -86,9 +87,6 @@ class StackCLI:
         )
         self.app.command(help="Search presets/tools.")(self.search)
 
-
-
-        # Tool-specific subcommands (loaded if a tool provides a CLI module)
         self.tools_app: typer.Typer = typer.Typer(help="Tool-specific commands.")
         self.app.add_typer(
             self.tools_app, name="tools", help="Tool-specific subcommands."
@@ -115,7 +113,7 @@ class StackCLI:
             from MCPStack import __version__
 
             console.print(
-                f"[bold green]MCPStack CLI Version: {__version__}[/bold green]"
+                f"[bold green]💬 MCPStack CLI Version: {__version__}[/bold green]"
             )
             raise typer.Exit()
         return value
@@ -127,7 +125,7 @@ class StackCLI:
             typer.Option(
                 "--version",
                 "-v",
-                # is_flag=True,  # make it a flag
+
                 is_eager=True,  # run early
                 callback=version_callback.__func__,  # staticmethod
                 help="Show CLI version and exit.",
@@ -151,7 +149,7 @@ class StackCLI:
         !!! tip "Where do presets come from?"
             Presets are discovered from :mod:`MCPStack.core.preset.registry`.
         """
-        console.print("[bold green]Available Presets[/bold green]")
+        console.print("[bold green]💬 Available Presets[/bold green]")
         table = Table(title="")
         table.add_column("Preset", style="cyan")
         for preset in ALL_PRESETS.keys():
@@ -169,7 +167,7 @@ class StackCLI:
         !!! note "Discovery"
             Tools are sourced from :mod:`MCPStack.tools.registry`.
         """
-        console.print("[bold green]Available Tools[/bold green]")
+        console.print("[bold green]💬 Available Tools[/bold green]")
         table = Table(title="")
         table.add_column("Tool", style="cyan")
         for tool in ALL_TOOLS.keys():
@@ -291,7 +289,7 @@ class StackCLI:
         !!! warning "Mutually exclusive"
             `--pipeline` and `--config-path` cannot be used together.
         """
-        console.print("[bold green]Starting MCPStack run...[/bold green]")
+        console.print("[bold green]💬 Starting MCPStack run...[/bold green]")
         try:
             if pipeline and config_path:
                 raise ValueError("Cannot specify both --pipeline and --config-path.")
@@ -300,7 +298,7 @@ class StackCLI:
             _config_path = os.path.abspath(_config_path)
             if pipeline:
                 console.print(
-                    f"[bold green]Loaded pipeline: {pipeline}[/bold green]"
+                    f"[bold green]💬 Loaded pipeline: {pipeline}[/bold green]"
                 )
                 stack = MCPStackCore.load(pipeline)
             else:
@@ -319,11 +317,12 @@ class StackCLI:
                             f"Unknown preset: {preset}.{suggestion_text}"
                         )
                     console.print(
-                        f"[bold green]Applying preset '{preset}'...[/bold green]"
+                        f"[bold green]💬 Applying preset '{preset}'...[/bold green]"
                     )
+
                     stack = stack.with_preset(preset)
             console.print(
-                f"[bold green]Building with config type '{config_type}'...[/bold green]"
+                f"[bold green]💬 Building with config type '{config_type}'...[/bold green]"
             )
             args_list = args.split(",") if args else None
             stack.build(
@@ -337,13 +336,13 @@ class StackCLI:
             )
             stack.save(_config_path)
             console.print(
-                f"[bold green]SUCCESS: Saved pipeline config to {_config_path}.[/bold green]"
+                f"[bold green]💬 ✅ Saved pipeline config to {_config_path}.[/bold green]"
             )
-            console.print("[bold green]Starting MCP server...[/bold green]")
+            console.print("[bold green]💬 Starting MCP server...[/bold green]")
             stack.run()
         except Exception as e:
             logger.error(f"Run failed: {e}", exc_info=True)
-            console.print(f"[red]ERROR: {e}[/red]")
+            console.print(f"[red]❌ Error: {e}[/red]")
             raise typer.Exit(code=1) from e
 
     def build(
@@ -390,7 +389,7 @@ class StackCLI:
             Optional[str],
             typer.Option("--profile", help="Workflow profile to execute (e.g., build-only, build-and-push)."),
         ] = None,
-        # Docker workflow parameters
+
         build_image: Annotated[
             Optional[str],
             typer.Option("--build-image", help="Docker image name to build."),
@@ -447,16 +446,13 @@ class StackCLI:
 
         Examples:
             ```bash
-            # Generate Docker config and Dockerfile
+
             mcpstack build --config-type docker --presets example_preset
-            
-            # Build Docker image locally using profile
+
             mcpstack build --profile build-only --presets example_preset --build-image myapp:latest
-            
-            # Complete Docker workflow: build and push to registry
+
             mcpstack build --profile build-and-push --presets example_preset --build-image myapp:latest
-            
-            # Generate Dockerfile only
+
             mcpstack build --profile build-only --generate-dockerfile --dockerfile-path ./Dockerfile
             ```
 
@@ -472,7 +468,7 @@ class StackCLI:
             _config_path = os.path.abspath(_config_path)
             if pipeline:
                 console.print(
-                    f"[bold green]Loaded pipeline: {pipeline}[/bold green]"
+                    f"[bold green]💬 Loaded pipeline: {pipeline}[/bold green]"
                 )
                 stack = MCPStackCore.load(pipeline)
             else:
@@ -491,15 +487,13 @@ class StackCLI:
                             f"Unknown preset: {preset}.{suggestion_text}"
                         )
                     console.print(
-                        f"[bold green]Applying preset '{preset}'...[/bold green]"
+                        f"[bold green]💬 Applying preset '{preset}'...[/bold green]"
                     )
                     stack = stack.with_preset(preset)
-            
-            # Handle profile execution if specified
+
             if profile:
                 console.print(f"[bold green]Executing workflow profile '{profile}'...[/bold green]")
-                
-                # Validate profile exists and provide suggestions if not
+
                 try:
                     validation = self.profile_manager.validate_profile(profile)
                     if not validation.is_valid:
@@ -508,20 +502,26 @@ class StackCLI:
                         if suggestions:
                             suggestion_text = f" Did you mean: {', '.join(suggestions)}?"
                         raise ValueError(f"Profile '{profile}' not found.{suggestion_text}")
-                    
-                    # Warn about missing requirements but continue
+
                     if validation.missing_requirements:
                         console.print(f"[yellow]Warning: Missing requirements: {', '.join(validation.missing_requirements)}[/yellow]")
-                    
-                    # Set config_type to docker for profile execution if not explicitly set
+
                     if config_type == "fastmcp":
                         config_type = "docker"
                         console.print("[bold blue]Using docker config type for profile execution[/bold blue]")
-                    
-                    # Execute the profile workflow
+
                     args_list = args.split(",") if args else None
+
+                    build_args_dict = None
+                    if build_args:
+                        build_args_dict = {}
+                        for arg_entry in build_args.split(","):
+                            if "=" in arg_entry:
+                                key, value = arg_entry.split("=", 1)
+                                build_args_dict[key.strip()] = value.strip()
+
                     result = self.profile_manager.execute_profile(
-                        profile, 
+                        profile,
                         stack,
                         config_type=config_type,
                         command=command,
@@ -530,39 +530,39 @@ class StackCLI:
                         module_name=module_name,
                         pipeline_config_path=_config_path,
                         save_path=output,
-                        dockerfile_path=output if output and output.endswith('Dockerfile') else None,
+                        build_image=build_image,
+                        generate_dockerfile=generate_dockerfile,
+                        dockerfile_path=dockerfile_path,
+                        docker_push=docker_push,
+                        docker_registry_url=docker_registry_url,
+                        build_args=build_args_dict,
                         presets=presets,  # Pass presets for variable expansion
                     )
-                    
-                    # Save the stack configuration
+
                     stack.save(_config_path)
-                    
-                    # Check if workflow completed successfully
+
                     if result.successful:
-                        console.print(f"[bold green]SUCCESS: Profile '{profile}' executed successfully![/bold green]")
+                        console.print(f"[bold green]💬 ✅ Profile '{profile}' executed successfully![/bold green]")
                     else:
-                        console.print(f"[bold yellow]WARNING: Workflow '{profile}' completed with issues[/bold yellow]")
-                    
-                    # Display generated files
+                        console.print(f"[bold yellow]⚠️ Workflow '{profile}' completed with issues[/bold yellow]")
+
                     if hasattr(result, 'results') and result.results:
-                        console.print("[bold blue]Generated files:[/bold blue]")
+                        console.print("[bold blue]💡 Generated files:[/bold blue]")
                         for stage, stage_result in result.results.items():
                             if stage_result and not isinstance(stage_result, Exception):
                                 console.print(f"  - {stage}: completed")
-                    
                 except Exception as e:
                     logger.error(f"Profile execution failed: {e}")
                     console.print(f"[red]ERROR: Profile execution failed: {e}[/red]")
                     raise typer.Exit(code=1) from e
             else:
-                # Regular build without profile
+
                 _save_path = os.path.abspath(output) if output else None
                 console.print(
-                    f"[bold green]Building with config type '{config_type}'...[/bold green]"
+                    f"[bold green]💬 Building with config type '{config_type}'...[/bold green]"
                 )
                 args_list = args.split(",") if args else None
-                
-                # Prepare base build parameters
+
                 build_params = {
                     "type": config_type,
                     "command": command,
@@ -572,10 +572,9 @@ class StackCLI:
                     "pipeline_config_path": _config_path,
                     "save_path": _save_path,
                 }
-                
-                # Add Docker-specific parameters only for Docker config type
+
                 if config_type == "docker":
-                    # Parse build_args if provided
+
                     build_args_dict = None
                     if build_args:
                         build_args_dict = {}
@@ -583,7 +582,6 @@ class StackCLI:
                             if "=" in arg:
                                 key, value = arg.split("=", 1)
                                 build_args_dict[key.strip()] = value.strip()
-                    
                     build_params.update({
                         "build_image": build_image,
                         "generate_dockerfile": generate_dockerfile,
@@ -595,10 +593,10 @@ class StackCLI:
                 
                 stack.build(**build_params)
                 stack.save(_config_path)
-                console.print("[bold green]SUCCESS: Pipeline config saved.[/bold green]")
+                console.print("[bold green]💬 ✅ Pipeline config saved.[/bold green]")
         except Exception as e:
             logger.error(f"Build failed: {e}", exc_info=True)
-            console.print(f"[red]ERROR: {e}[/red]")
+            console.print(f"[red]❌ Error: {e}[/red]")
             raise typer.Exit(code=1) from e
 
     def pipeline(
@@ -637,13 +635,13 @@ class StackCLI:
             closest match and exits with an error.
         """
         console.print(
-            f"[bold green]Adding tool '{tool_name}' to pipeline...[/bold green]"
+            f"[bold green]💬 Adding tool '{tool_name}' to pipeline...[/bold green]"
         )
         if tool_name not in ALL_TOOLS:
             available = list(ALL_TOOLS.keys())
             best_match, score = process.extractOne(tool_name, available) or (None, 0)
             suggestion_text = f" Did you mean '{best_match}'?" if score >= 80 else ""
-            console.print(f"[red]ERROR: Unknown tool: {tool_name}.{suggestion_text}[/red]")
+            console.print(f"[red]❌ Unknown tool: {tool_name}.{suggestion_text}[/red]")
             raise typer.Exit(code=1)
         try:
             if tool_config:
@@ -654,11 +652,11 @@ class StackCLI:
             pipeline_path = to_pipeline or new_pipeline
             if to_pipeline and Path(to_pipeline).exists():
                 stack: MCPStackCore = MCPStackCore.load(to_pipeline)
-                console.print(f"[bold green]Appending to {to_pipeline}[/bold green]")
+                console.print(f"[bold green]💬 Appending to {to_pipeline}[/bold green]")
             else:
                 stack = MCPStackCore()
                 console.print(
-                    f"[bold green]Creating new pipeline at {pipeline_path}[/bold green]"
+                    f"[bold green]💬 Creating new pipeline at {pipeline_path}[/bold green]"
                 )
             stack.config.merge_env(tool_dict.get("env_vars", {}))
             tool_cls = ALL_TOOLS[tool_name]
@@ -667,11 +665,11 @@ class StackCLI:
             stack.build()
             stack.save(pipeline_path)
             console.print(
-                f"[bold green]SUCCESS: Pipeline updated: {pipeline_path} (tools: {len(stack.tools)})[/bold green]"
+                f"[bold green]💬 ✅ Pipeline updated: {pipeline_path} (tools: {len(stack.tools)})[/bold green]"
             )
         except Exception as e:
             logger.error(f"Failed to add {tool_name}: {e}", exc_info=True)
-            console.print(f"[red]ERROR: Failed to add {tool_name}: {e}[/red]")
+            console.print(f"[red]❌ Failed to add {tool_name}: {e}[/red]")
             raise typer.Exit(1) from e
 
     def search(
@@ -695,10 +693,10 @@ class StackCLI:
         !!! tip "Partial names welcome"
             Short fragments are fine; results are ranked by fuzzy score.
         """
-        console.print(f"[bold green]Searching for '{query}'...[/bold green]")
+        console.print(f"[bold green]💬 Searching for '{query}'...[/bold green]")
         if type_ not in ["presets", "tools", "both"]:
             console.print(
-                "[red]ERROR: Invalid type. Use `presets`, `tools`, or `both`.[/red]"
+                "[red]❌ Invalid type. Use `presets`, `tools`, or `both`.[/red]"
             )
             raise typer.Exit(code=1)
         results = []
@@ -715,7 +713,7 @@ class StackCLI:
             tool_matches = _p.extract(query, tools, limit=limit)
             results.append(("Tools", tool_matches))
         for category, matches in results:
-            table = Table(title=f"[bold green]{category} matches[/bold green]")
+            table = Table(title=f"[bold green]💬 {category} matches[/bold green]")
             table.add_column("Match", style="cyan")
             table.add_column("Score", style="magenta")
             for match, score in matches:
@@ -758,7 +756,7 @@ class StackCLI:
 
         try:
             module = importlib.import_module(f"MCPStack.tools.{tool_name}.cli")
-            # Prefer a BaseToolCLI subclass, else a top-level get_app(), else a Typer app
+
             for _, cls in inspect.getmembers(module, inspect.isclass):
                 if issubclass(cls, BaseToolCLI) and cls is not BaseToolCLI:
                     app = cls.get_app()
@@ -826,7 +824,7 @@ class StackCLI:
         Output:
             Relies on each tool CLI's `status()` implementation to render.
         """
-        console.print("[bold green]Checking status...[/bold green]")
+        console.print("[bold green]💬 Checking status...[/bold green]")
         tools_to_check = [tool] if tool else list(self._load_tool_clis().keys())
         for _tool in tools_to_check:
             try:
@@ -841,7 +839,7 @@ class StackCLI:
 
         Behavior:
             Prints a stylized Rich panel with project name and version, using a
-            Windows-compatible header when help is requested.
+            multi-color figlet header when help is requested.
 
         !!! tip "Quiet mode"
             The banner is only displayed on help screens to avoid noisy output
@@ -850,31 +848,37 @@ class StackCLI:
         from MCPStack import __version__
 
         if any(arg in sys.argv for arg in ["--help", "-h"]):
-            # Use simple ASCII art that works on Windows
-            ascii_art = Text("""
-    MCPStack
-    ========
-    
-    Composable MCP pipelines.
-    """, style="bold blue")
-            
+            rich_fig = RichFiglet(
+                "MCPStack",
+                font="ansi_shadow",
+                colors=["#0ea5e9", "#0ea5e9", "#0ea5e9", "#FFFFFF", "#FFFFFF"],
+                horizontal=True,
+                remove_blank_lines=True,
+            )
             entries = [
-                ("Project:", "MCPStack — Modular MCP Pipelines"),
-                ("Version:", __version__),
+                ("🏗️", " Project", "MCPStack — Modular MCP Pipelines"),
+                ("🏎️", " Version", __version__),
             ]
-            
+            max_label_len = max(
+                cell_len(emoji + " " + key + ":") for emoji, key, value in entries
+            )
             group_items = [
                 Text(""),
-                ascii_art,
+                Text(""),
+                rich_fig,
+                Text(""),
+                Text("Composable MCP pipelines."),
                 Text(""),
             ]
-            
-            for key, value in entries:
-                line = f"[turquoise4]{key}[/turquoise4]  {value}"
+            for i, (emoji, key, value) in enumerate(entries):
+                label_plain = emoji + " " + key + ":"
+                label_len = cell_len(label_plain)
+                spaces = " " * (max_label_len - label_len + 2)
+                line = f"[turquoise4]{label_plain}[/turquoise4]{spaces}{value}"
                 group_items.append(Text.from_markup(line))
-            
-            group_items.append(Text(""))
-            
+                if i == 0:
+                    group_items.append(Text(""))
+            group_items += [Text(""), Text("")]
             console.print(
                 Panel(
                     Group(*group_items),
@@ -886,6 +890,7 @@ class StackCLI:
                     padding=(1, 5),
                 )
             )
+
 
 
 def _materialize_cli_app(obj):
@@ -914,3 +919,4 @@ def _materialize_cli_app(obj):
 
 def main_cli() -> None:
     StackCLI()()
+

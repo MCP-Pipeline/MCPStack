@@ -226,7 +226,7 @@ class TestDockerBuilderCoverage:
         assert "docker" in call_args
         assert "images" in call_args
         assert "--format" in call_args
-        assert "json" in call_args
+        assert "{{json .}}" in call_args
 
     @patch('subprocess.run')
     def test_list_images_with_filter(self, mock_run):
@@ -246,7 +246,7 @@ class TestDockerBuilderCoverage:
     def test_list_images_invalid_json(self, mock_run):
         """Test Docker images list with invalid JSON."""
         mock_run.return_value.returncode = 0
-        mock_run.return_value.stdout = 'invalid json\n{"Repository":"test","Tag":"latest"}\n'
+        mock_run.return_value.stdout = 'invalid line\n{"Repository":"test","Tag":"latest"}\n'
         mock_run.return_value.stderr = ""
 
         result = DockerBuilder.list_images()

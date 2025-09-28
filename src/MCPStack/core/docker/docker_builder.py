@@ -1,5 +1,5 @@
-"""Docker build utilities for MCPStack."""
 import logging
+import json
 import subprocess
 from pathlib import Path
 
@@ -44,30 +44,25 @@ class DockerBuilder:
         if not dockerfile_path.exists():
             raise MCPStackValidationError(f"Dockerfile not found: {dockerfile_path}")
         
-        # Default context to dockerfile directory
         if context_path is None:
             context_path = str(dockerfile_path.parent)
         
-        # Build Docker command
         cmd = [
             "docker", "build",
             "-t", image_name,
             "-f", str(dockerfile_path),
         ]
         
-        # Add build arguments
         if build_args:
             for key, value in build_args.items():
                 cmd.extend(["--build-arg", f"{key}={value}"])
         
-        # Add flags
         if no_cache:
             cmd.append("--no-cache")
         
         if quiet:
             cmd.append("--quiet")
         
-        # Add context path as final argument
         cmd.append(context_path)
         
         logger.info(f"Building Docker image: {' '.join(cmd)}")
@@ -124,7 +119,6 @@ class DockerBuilder:
         Raises:
             MCPStackValidationError: If push fails
         """
-        # Construct full image name with registry if provided
         full_image_name = image_name
         if registry_url:
             if not image_name.startswith(registry_url):
@@ -228,7 +222,7 @@ class DockerBuilder:
         Raises:
             MCPStackValidationError: If listing fails
         """
-        cmd = ["docker", "images", "--format", "json"]
+        cmd = ["docker", "images", "--format", "{{json .}}"]
         
         if filter_name:
             cmd.extend(["--filter", f"reference={filter_name}"])
@@ -244,7 +238,6 @@ class DockerBuilder:
             images = []
             for line in result.stdout.strip().split('\n'):
                 if line.strip():
-                    import json
                     try:
                         image_info = json.loads(line)
                         images.append(image_info)

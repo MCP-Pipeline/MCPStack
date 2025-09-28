@@ -1,4 +1,3 @@
-"""Docker MCP configuration generator."""
 import json
 import logging
 import re
@@ -38,7 +37,7 @@ class DockerMCPConfigGenerator:
         ports: Optional[List[str]] = None,
         network: Optional[str] = None,
         extra_docker_args: Optional[List[str]] = None,
-        # Docker workflow parameters
+
         build_image: Optional[str] = None,
         generate_dockerfile: bool = False,
         dockerfile_path: Optional[str] = None,
@@ -72,7 +71,7 @@ class DockerMCPConfigGenerator:
         Returns:
             Dict containing the Docker-based MCP configuration
         """
-        # Generate the Docker configuration
+
         config = cls._generate_config(
             stack=stack,
             image_name=image_name,
@@ -83,11 +82,9 @@ class DockerMCPConfigGenerator:
             extra_docker_args=extra_docker_args,
         )
 
-        # Add pipeline config path as environment variable if provided
         if pipeline_config_path:
             config["mcpServers"][server_name]["env"]["MCPSTACK_CONFIG_PATH"] = pipeline_config_path
 
-        # Handle Docker workflow operations
         if generate_dockerfile:
             from MCPStack.core.docker.dockerfile_generator import DockerfileGenerator
             DockerfileGenerator.save(
@@ -113,7 +110,6 @@ class DockerMCPConfigGenerator:
                 registry_url=docker_registry_url
             )
 
-        # Save configuration if path provided or merge with existing config
         cls._save_config(
             stack=stack,
             image_name=image_name,
@@ -156,28 +152,22 @@ class DockerMCPConfigGenerator:
         """
         DockerMCPConfigGenerator._validate_image_name(image_name)
 
-        # Build Docker command arguments
         docker_args = ["run", "-i", "--rm"]
 
-        # Add volume mounts
         if volumes:
             for volume in volumes:
                 docker_args.extend(["-v", volume])
 
-        # Add port mappings
         if ports:
             for port in ports:
                 docker_args.extend(["-p", port])
 
-        # Add network
         if network:
             docker_args.extend(["--network", network])
 
-        # Add extra arguments
         if extra_docker_args:
             docker_args.extend(extra_docker_args)
 
-        # Add image name as final argument
         docker_args.append(image_name)
 
         config = {
@@ -231,7 +221,7 @@ class DockerMCPConfigGenerator:
                 json.dump(config, f, indent=2)
             logger.info(f"Docker config saved to {save_path}")
         else:
-            # Merge with existing Claude config when no save_path provided
+
             path = cls._get_claude_config_path()
             if path:
                 cls._merge_with_existing_config(config, path)
@@ -251,14 +241,11 @@ class DockerMCPConfigGenerator:
         if not image_name or not image_name.strip():
             raise MCPStackValidationError("Docker image name cannot be empty")
 
-        # Basic validation for Docker image name format
-        # Allow: registry.io/name:tag, name:tag, name
         if " " in image_name:
             raise MCPStackValidationError(
                 f"Docker image name cannot contain spaces: {image_name}"
             )
 
-        # Check for invalid characters (basic check)
         if not re.match(r'^[a-zA-Z0-9][a-zA-Z0-9._/-]*[a-zA-Z0-9]*(:[a-zA-Z0-9._-]+)?$', image_name):
             if len(image_name) > 1:  # Allow single character names for testing
                 raise MCPStackValidationError(
@@ -306,11 +293,9 @@ class DockerMCPConfigGenerator:
                 logger.warning(f"Could not read existing config: {e}")
                 existing_config = {}
 
-        # Merge mcpServers sections
         existing_config.setdefault("mcpServers", {})
         existing_config["mcpServers"].update(new_config["mcpServers"])
 
-        # Write merged configuration
         try:
             with open(config_path, "w") as f:
                 json.dump(existing_config, f, indent=2)
@@ -318,3 +303,5 @@ class DockerMCPConfigGenerator:
         except IOError as e:
             logger.error(f"Failed to write config to {config_path}: {e}")
             raise MCPStackValidationError(f"Could not write config file: {e}")
+
+
