@@ -233,7 +233,7 @@ class ProfileOrchestrator:
                 "build_args": kwargs.get("build_args"),
             }
 
-            build_kwargs = {k: v for k, v in build_kwargs.items() if v is not None}
+            build_kwargs = {key: value for key, value in build_kwargs.items() if value is not None}
 
             result = stack_context.build(**build_kwargs)
 

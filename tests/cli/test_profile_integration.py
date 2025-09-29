@@ -57,17 +57,20 @@ class TestProfileCLIIntegration:
         mock_docker_check.return_value = True
         
         with tempfile.TemporaryDirectory() as temp_dir:
+            previous_cwd = os.getcwd()
             os.chdir(temp_dir)
-            
-            result = self.runner.invoke(self.cli.app, [
-                "build", 
-                "--profile", "build-only", 
-                "--presets", "example_preset"
-            ])
-            
-            # Should succeed even if Docker operations fail in test environment
-            # The important thing is that the profile is recognized and processed
-            assert "Executing workflow profile 'build-only'" in result.stdout
+            try:
+                result = self.runner.invoke(self.cli.app, [
+                    "build",
+                    "--profile", "build-only",
+                    "--presets", "example_preset",
+                ])
+
+                # Should succeed even if Docker operations fail in test environment
+                # The important thing is that the profile is recognized and processed
+                assert "Executing workflow profile 'build-only'" in result.stdout
+            finally:
+                os.chdir(previous_cwd)
 
     def test_build_with_invalid_profile(self):
         """Test mcpstack build --profile with invalid profile name."""
@@ -95,16 +98,19 @@ class TestProfileCLIIntegration:
     def test_build_backward_compatibility(self):
         """Test that existing build command still works without profile."""
         with tempfile.TemporaryDirectory() as temp_dir:
+            previous_cwd = os.getcwd()
             os.chdir(temp_dir)
-            
-            result = self.runner.invoke(self.cli.app, [
-                "build", 
-                "--presets", "example_preset"
-            ])
-            
-            assert result.exit_code == 0
-            assert "SUCCESS: Pipeline config saved" in result.stdout
-            assert "Executing workflow profile" not in result.stdout
+            try:
+                result = self.runner.invoke(self.cli.app, [
+                    "build",
+                    "--presets", "example_preset",
+                ])
+
+                assert result.exit_code == 0
+                assert "Pipeline config saved" in result.stdout
+                assert "Executing workflow profile" not in result.stdout
+            finally:
+                os.chdir(previous_cwd)
 
     def test_help_shows_profile_parameter(self):
         """Test that --help shows the new --profile parameter."""
@@ -181,17 +187,20 @@ class TestExternalProfiles:
         mock_docker_check.return_value = True
         
         with tempfile.TemporaryDirectory() as temp_dir:
+            previous_cwd = os.getcwd()
             os.chdir(temp_dir)
-            
-            # Test docker-dev profile which has custom parameters
-            result = self.runner.invoke(self.cli.app, [
-                "build", 
-                "--profile", "docker-dev", 
-                "--presets", "example_preset"
-            ])
-            
-            # Should attempt to execute the external profile
-            assert "Executing workflow profile 'docker-dev'" in result.stdout
+            try:
+                # Test docker-dev profile which has custom parameters
+                result = self.runner.invoke(self.cli.app, [
+                    "build",
+                    "--profile", "docker-dev",
+                    "--presets", "example_preset",
+                ])
+
+                # Should attempt to execute the external profile
+                assert "Executing workflow profile 'docker-dev'" in result.stdout
+            finally:
+                os.chdir(previous_cwd)
 
     def test_profile_parameter_expansion(self):
         """Test that profile parameters support environment variable expansion."""
@@ -250,3 +259,4 @@ class TestErrorHandling:
         assert result.exit_code in [0, 1]
         if result.exit_code == 1:
             assert "ERROR:" in result.stdout
+

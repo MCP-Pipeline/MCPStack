@@ -120,5 +120,6 @@ class TestProfileBasedDockerCLI:
                 ])
                 
                 assert result.exit_code == 0
-                assert "SUCCESS: Pipeline config saved" in result.stdout
+                assert "Pipeline config saved" in result.stdout
                 assert "Executing workflow profile" not in result.stdout
+

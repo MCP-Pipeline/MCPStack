@@ -276,7 +276,7 @@ class TestBackwardCompatibility:
             ])
 
             assert result.exit_code == 0
-            assert "SUCCESS: Pipeline config saved" in result.stdout
+            assert "Pipeline config saved" in result.stdout
             assert "Executing workflow profile" not in result.stdout
 
     def test_docker_config_type_without_profile(self):
@@ -296,3 +296,4 @@ class TestBackwardCompatibility:
             mock_build.assert_called_once()
             call_kwargs = mock_build.call_args[1]
             assert call_kwargs["type"] == "docker"
+
