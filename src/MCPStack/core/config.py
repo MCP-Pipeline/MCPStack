@@ -222,5 +222,5 @@ class StackConfig:
             setup_logging(level=self.log_level)
         except Exception as e:
             raise MCPStackConfigError("Invalid log level", details=str(e)) from e
-        for k, v in self.env_vars.items():
-            os.environ[k] = v
+        for key, value in self.env_vars.items():
+            os.environ[key] = value

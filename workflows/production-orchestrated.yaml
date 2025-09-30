@@ -1,0 +1,9 @@
+name: production-orchestrated
+description: Production deployment workflow
+config_type: docker
+stages:
+  - config.generate
+  - dockerfile.generate
+  - image.build
+requires:
+  - docker_client

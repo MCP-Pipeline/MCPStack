@@ -67,6 +67,10 @@ config.json
 *config*.json
 m3_pipeline.json
 
+# Generated Docker files (use workflow to generate)
+Dockerfile*
+!src/MCPStack/core/docker/dockerfile_generator.py
+
 # Operating System specific files
 .DS_Store
 Thumbs.db

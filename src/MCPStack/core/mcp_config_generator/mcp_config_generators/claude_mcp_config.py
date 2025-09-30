@@ -58,7 +58,12 @@ class ClaudeConfigGenerator:
         _args = cls._get_args(args, stack, _module_name)
         _cwd = cls._get_cwd(cwd, stack)
 
-        if not shutil.which(_command):
+        # Skip PATH validation in containerized environments (detected by MCPSTACK_CONFIG_PATH)
+        # Docker containers have guaranteed command availability at runtime
+        is_container = os.environ.get("MCPSTACK_CONFIG_PATH") is not None
+        if is_container:
+            logger.debug(f"Container runtime detected. Skipping PATH validation for command '{_command}'")
+        elif not shutil.which(_command):
             raise MCPStackValidationError(
                 f"Invalid command '{_command}': Not found on PATH."
             )
@@ -104,9 +109,15 @@ class ClaudeConfigGenerator:
         if command is not None:
             return command
         if "VIRTUAL_ENV" in os.environ:
-            venv_python = Path(os.environ["VIRTUAL_ENV"]) / "bin" / "python"
-            if venv_python.exists():
-                return str(venv_python)
+            venv_path = Path(os.environ["VIRTUAL_ENV"])
+            # Check for Windows virtual environment structure first
+            venv_python_win = venv_path / "Scripts" / "python.exe"
+            if venv_python_win.exists():
+                return str(venv_python_win)
+            # Fallback to Unix-style structure
+            venv_python_unix = venv_path / "bin" / "python"
+            if venv_python_unix.exists():
+                return str(venv_python_unix)
         default_python = shutil.which("python") or shutil.which("python3") or "python"
         return stack.config.get_env_var("MCPSTACK_COMMAND", default_python)
 

@@ -63,8 +63,21 @@ uv run mcpstack pipeline jupyter --to-pipeline my_pipeline.json --tool-config ju
 ## 🔧 Step 4 — Compose & Run the Pipeline On Claude Desktop
 
 ```bash
+# Original (non-docker) build used in the tutorial
 uv run mcpstack build --pipeline my_pipeline.json --config-type claude
 ```
+
+```bash
+# Dockerised build: config + Dockerfile + local image
+uv run mcpstack build --pipeline my_pipeline.json --config-type docker --profile build-only --build-image mimic-jupyter:latest
+```
+
+```bash
+# Dockerised build + push (optional if you have a registry configured)
+uv run mcpstack build --pipeline my_pipeline.json --config-type docker --profile build-and-push --build-image mimic-jupyter:latest --docker-push
+```
+
+Use whichever variant fits your workflow; the dockerised ones build a container image while running the same pipeline steps.
 
 Now you can ask the LLM to operate the MIMIC tool and export results into Jupyter.
 

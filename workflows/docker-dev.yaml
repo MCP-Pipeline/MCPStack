@@ -1,0 +1,27 @@
+# Example development Docker workflow profile
+# Copy this file and customize it for your project needs
+# Usage: mcpstack build --presets your-preset --config-type docker --profile docker-dev
+
+name: docker-dev
+description: "Development Docker workflow - generates config, dockerfile, and builds locally"
+
+config_type: docker
+
+# Workflow stages to execute
+stages:
+  - config.generate
+  - dockerfile.generate:
+      # Optional: specify custom dockerfile path
+      path: Dockerfile.dev
+      # Use local package for testing FastMCP validation fix
+      local_package: ".."
+  - image.build:
+      # Uses environment variables for flexible naming
+      image: "${preset}-dev:latest"
+      build_args:
+        # Pass environment directly to Docker
+        ENVIRONMENT: development
+
+# Requirements validation (executed before workflow starts)
+requires:
+  - docker_client

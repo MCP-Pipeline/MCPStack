@@ -20,6 +20,7 @@ from thefuzz import process
 
 from MCPStack.core.config import StackConfig
 from MCPStack.core.preset.registry import ALL_PRESETS
+from MCPStack.core.profile_manager import ProfileManager
 from MCPStack.core.tool.cli.base import BaseToolCLI
 from MCPStack.core.utils.exceptions import MCPStackPresetError
 from MCPStack.core.utils.logging import setup_logging
@@ -53,6 +54,8 @@ class StackCLI:
         mcpstack --help
         mcpstack list-presets
         mcpstack build --presets example_preset --config-type fastmcp
+        mcpstack build --presets example_preset --config-type docker --profile build-only
+        mcpstack build --presets example_preset --profile build-and-push --build-image myapp:latest
         mcpstack run --presets example_preset
         mcpstack tools my_tool --help
         mcpstack pipeline my_tool --new-pipeline my_pipeline.json
@@ -64,6 +67,7 @@ class StackCLI:
 
     def __init__(self) -> None:
         self._display_banner()
+        self.profile_manager = ProfileManager()
         self.app: typer.Typer = typer.Typer(
             help="MCPStack CLI",
             add_completion=False,
@@ -73,6 +77,7 @@ class StackCLI:
         self.app.callback()(self.main_callback)
         self.app.command(help="List available presets.")(self.list_presets)
         self.app.command(help="List available tools.")(self.list_tools)
+        self.app.command(help="List available workflow profiles.")(self.list_profiles)
         self.app.command(help="Run MCPStack: build + run MCP server.")(self.run)
         self.app.command(help="Build an MCP host configuration without running.")(
             self.build
@@ -82,7 +87,6 @@ class StackCLI:
         )
         self.app.command(help="Search presets/tools.")(self.search)
 
-        # Tool-specific subcommands (loaded if a tool provides a CLI module)
         self.tools_app: typer.Typer = typer.Typer(help="Tool-specific commands.")
         self.app.add_typer(
             self.tools_app, name="tools", help="Tool-specific subcommands."
@@ -121,7 +125,7 @@ class StackCLI:
             typer.Option(
                 "--version",
                 "-v",
-                # is_flag=True,  # make it a flag
+
                 is_eager=True,  # run early
                 callback=version_callback.__func__,  # staticmethod
                 help="Show CLI version and exit.",
@@ -171,6 +175,60 @@ class StackCLI:
         if not ALL_TOOLS:
             table.add_row("[dim]— none registered —[/dim]")
         console.print(table)
+
+    def list_profiles(
+        self,
+        config_type: Annotated[
+            Optional[str],
+            typer.Option("--config-type", help="Filter profiles by config type (e.g., docker)."),
+        ] = None,
+    ) -> None:
+        """List available workflow profiles.
+
+        Args:
+            config_type: Optional filter by configuration type.
+
+        Output:
+            Prints a Rich table of profile names, descriptions, and sources.
+
+        !!! note "Profile Discovery"
+            Profiles are discovered from built-in definitions and workflows/ directory.
+        """
+        console.print("[bold green]Available Workflow Profiles[/bold green]")
+        
+        try:
+            profiles = self.profile_manager.list_profiles(config_type=config_type)
+            
+            if not profiles:
+                if config_type:
+                    console.print(f"[dim]— no profiles found for config type '{config_type}' —[/dim]")
+                else:
+                    console.print("[dim]— no profiles registered —[/dim]")
+                return
+            
+            table = Table(title="")
+            table.add_column("Profile", style="cyan")
+            table.add_column("Description", style="white")
+            table.add_column("Config Type", style="yellow")
+            table.add_column("Source", style="green")
+            
+            for profile in profiles:
+                source_style = "green" if profile.source == "built-in" else "blue"
+                table.add_row(
+                    profile.name,
+                    profile.description,
+                    profile.config_type,
+                    f"[{source_style}]{profile.source}[/{source_style}]"
+                )
+            
+            console.print(table)
+            
+            if config_type is None:
+                console.print(f"\n[dim]Tip: Use --config-type to filter profiles (e.g., --config-type docker)[/dim]")
+                
+        except Exception as e:
+            logger.error(f"Failed to list profiles: {e}")
+            console.print(f"[red]ERROR: Failed to list profiles: {e}[/red]")
 
     def run(
         self,
@@ -261,6 +319,7 @@ class StackCLI:
                     console.print(
                         f"[bold green]💬 Applying preset '{preset}'...[/bold green]"
                     )
+
                     stack = stack.with_preset(preset)
             console.print(
                 f"[bold green]💬 Building with config type '{config_type}'...[/bold green]"
@@ -326,6 +385,35 @@ class StackCLI:
             Optional[str],
             typer.Option("--module-name", help="Module name for default args."),
         ] = None,
+        profile: Annotated[
+            Optional[str],
+            typer.Option("--profile", help="Workflow profile to execute (e.g., build-only, build-and-push)."),
+        ] = None,
+
+        build_image: Annotated[
+            Optional[str],
+            typer.Option("--build-image", help="Docker image name to build."),
+        ] = None,
+        generate_dockerfile: Annotated[
+            bool,
+            typer.Option("--generate-dockerfile", help="Generate Dockerfile for containerization."),
+        ] = False,
+        dockerfile_path: Annotated[
+            Optional[str],
+            typer.Option("--dockerfile-path", help="Custom path for generated Dockerfile."),
+        ] = None,
+        docker_push: Annotated[
+            bool,
+            typer.Option("--docker-push", help="Push built image to registry."),
+        ] = False,
+        docker_registry_url: Annotated[
+            Optional[str],
+            typer.Option("--docker-registry-url", help="Registry URL for pushing images."),
+        ] = None,
+        build_args: Annotated[
+            Optional[str],
+            typer.Option("--build-args", help="Comma-separated Docker build arguments (KEY=VALUE)."),
+        ] = None,
     ) -> None:
         """Generate an MCP host configuration file without running.
 
@@ -342,15 +430,36 @@ class StackCLI:
             args: Optional comma-separated args for `command`.
             cwd: Working directory for the host/generator.
             module_name: Module path for module-based generators.
+            profile: Workflow profile to execute for multi-stage deployments.
+            build_image: Docker image name to build.
+            generate_dockerfile: Whether to generate a Dockerfile.
+            dockerfile_path: Custom path for generated Dockerfile.
+            docker_push: Whether to push built image to registry.
+            docker_registry_url: Registry URL for pushing images.
+            build_args: Comma-separated Docker build arguments.
 
         Behavior:
             * Composes a pipeline (or loads one), builds it, saves the pipeline
               JSON, and optionally writes a host config to `--output`.
+            * Use `--profile` for Docker workflows: `build-only` for local development,
+              `build-and-push` for deployment.
+
+        Examples:
+            ```bash
+
+            mcpstack build --config-type docker --presets example_preset
+
+            mcpstack build --profile build-only --presets example_preset --build-image myapp:latest
+
+            mcpstack build --profile build-and-push --presets example_preset --build-image myapp:latest
+
+            mcpstack build --profile build-only --generate-dockerfile --dockerfile-path ./Dockerfile
+            ```
 
         !!! warning "Mutually exclusive"
             `--pipeline` and `--config-path` cannot be used together.
         """
-        console.print("[bold green]💬 Starting MCPStack build...[/bold green]")
+        console.print("[bold green]Starting MCPStack build...[/bold green]")
         try:
             if pipeline and config_path:
                 raise ValueError("Cannot specify both --pipeline and --config-path.")
@@ -381,22 +490,110 @@ class StackCLI:
                         f"[bold green]💬 Applying preset '{preset}'...[/bold green]"
                     )
                     stack = stack.with_preset(preset)
-            _save_path = os.path.abspath(output) if output else None
-            console.print(
-                f"[bold green]💬 Building with config type '{config_type}'...[/bold green]"
-            )
-            args_list = args.split(",") if args else None
-            stack.build(
-                type=config_type,
-                command=command,
-                args=args_list,
-                cwd=cwd,
-                module_name=module_name,
-                pipeline_config_path=_config_path,
-                save_path=_save_path,
-            )
-            stack.save(_config_path)
-            console.print("[bold green]💬 ✅ Pipeline config saved.[/bold green]")
+
+            if profile:
+                console.print(f"[bold green]Executing workflow profile '{profile}'...[/bold green]")
+
+                try:
+                    validation = self.profile_manager.validate_profile(profile)
+                    if not validation.is_valid:
+                        suggestions = self.profile_manager.suggest_profiles(profile)
+                        suggestion_text = ""
+                        if suggestions:
+                            suggestion_text = f" Did you mean: {', '.join(suggestions)}?"
+                        raise ValueError(f"Profile '{profile}' not found.{suggestion_text}")
+
+                    if validation.missing_requirements:
+                        console.print(f"[yellow]Warning: Missing requirements: {', '.join(validation.missing_requirements)}[/yellow]")
+
+                    if config_type == "fastmcp":
+                        config_type = "docker"
+                        console.print("[bold blue]Using docker config type for profile execution[/bold blue]")
+
+                    args_list = args.split(",") if args else None
+
+                    build_args_dict = None
+                    if build_args:
+                        build_args_dict = {}
+                        for arg_entry in build_args.split(","):
+                            if "=" in arg_entry:
+                                key, value = arg_entry.split("=", 1)
+                                build_args_dict[key.strip()] = value.strip()
+
+                    result = self.profile_manager.execute_profile(
+                        profile,
+                        stack,
+                        config_type=config_type,
+                        command=command,
+                        args=args_list,
+                        cwd=cwd,
+                        module_name=module_name,
+                        pipeline_config_path=_config_path,
+                        save_path=output,
+                        build_image=build_image,
+                        generate_dockerfile=generate_dockerfile,
+                        dockerfile_path=dockerfile_path,
+                        docker_push=docker_push,
+                        docker_registry_url=docker_registry_url,
+                        build_args=build_args_dict,
+                        presets=presets,  # Pass presets for variable expansion
+                    )
+
+                    stack.save(_config_path)
+
+                    if result.successful:
+                        console.print(f"[bold green]💬 ✅ Profile '{profile}' executed successfully![/bold green]")
+                    else:
+                        console.print(f"[bold yellow]⚠️ Workflow '{profile}' completed with issues[/bold yellow]")
+
+                    if hasattr(result, 'results') and result.results:
+                        console.print("[bold blue]💡 Generated files:[/bold blue]")
+                        for stage, stage_result in result.results.items():
+                            if stage_result and not isinstance(stage_result, Exception):
+                                console.print(f"  - {stage}: completed")
+                except Exception as e:
+                    logger.error(f"Profile execution failed: {e}")
+                    console.print(f"[red]ERROR: Profile execution failed: {e}[/red]")
+                    raise typer.Exit(code=1) from e
+            else:
+
+                _save_path = os.path.abspath(output) if output else None
+                console.print(
+                    f"[bold green]💬 Building with config type '{config_type}'...[/bold green]"
+                )
+                args_list = args.split(",") if args else None
+
+                build_params = {
+                    "type": config_type,
+                    "command": command,
+                    "args": args_list,
+                    "cwd": cwd,
+                    "module_name": module_name,
+                    "pipeline_config_path": _config_path,
+                    "save_path": _save_path,
+                }
+
+                if config_type == "docker":
+
+                    build_args_dict = None
+                    if build_args:
+                        build_args_dict = {}
+                        for arg in build_args.split(","):
+                            if "=" in arg:
+                                key, value = arg.split("=", 1)
+                                build_args_dict[key.strip()] = value.strip()
+                    build_params.update({
+                        "build_image": build_image,
+                        "generate_dockerfile": generate_dockerfile,
+                        "dockerfile_path": dockerfile_path,
+                        "docker_push": docker_push,
+                        "docker_registry_url": docker_registry_url,
+                        "build_args": build_args_dict,
+                    })
+                
+                stack.build(**build_params)
+                stack.save(_config_path)
+                console.print("[bold green]💬 ✅ Pipeline config saved.[/bold green]")
         except Exception as e:
             logger.error(f"Build failed: {e}", exc_info=True)
             console.print(f"[red]❌ Error: {e}[/red]")
@@ -559,7 +756,7 @@ class StackCLI:
 
         try:
             module = importlib.import_module(f"MCPStack.tools.{tool_name}.cli")
-            # Prefer a BaseToolCLI subclass, else a top-level get_app(), else a Typer app
+
             for _, cls in inspect.getmembers(module, inspect.isclass):
                 if issubclass(cls, BaseToolCLI) and cls is not BaseToolCLI:
                     app = cls.get_app()
@@ -695,6 +892,7 @@ class StackCLI:
             )
 
 
+
 def _materialize_cli_app(obj):
     """Return a Typer app from an entry-point object.
 
@@ -721,3 +919,4 @@ def _materialize_cli_app(obj):
 
 def main_cli() -> None:
     StackCLI()()
+
